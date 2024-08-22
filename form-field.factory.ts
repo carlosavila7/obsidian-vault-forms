@@ -1,5 +1,5 @@
 import { DropdownFormField, FORM_FIELD_ELEMENT_TYPE, FormField } from "form";
-import { DropdownComponent, Notice, Setting } from "obsidian";
+import { Notice, Setting } from "obsidian";
 
 abstract class FormFieldFactory {
 	contentEl: HTMLElement;
@@ -140,8 +140,7 @@ export class DropownFormFieldFactory extends FormFieldFactory {
 			}`
 		);
 
-		if(postAddedOption)
-			fieldEl?.removeChild(postAddedOption)
+		if (postAddedOption) fieldEl?.removeChild(postAddedOption);
 
 		fieldEl
 			?.createEl("option", { value: value, text: value })
@@ -150,7 +149,6 @@ export class DropownFormFieldFactory extends FormFieldFactory {
 				sourceFormField?.className ?? "post-added-option"
 			);
 
-		// fieldEl?.removeChild();
 		this.formField.content["value"] = value;
 	}
 }
