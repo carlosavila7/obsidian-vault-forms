@@ -1,155 +1,244 @@
 import { DropdownFormField, FORM_FIELD_ELEMENT_TYPE, FormField } from "form";
 import { Notice, Setting } from "obsidian";
+import { getClassNamesFromExpression } from "utils";
 
 abstract class FormFieldFactory {
-	contentEl: HTMLElement;
-	formField: FormField;
+	public readonly formField: FormField;
+	protected readonly contentEl: HTMLElement;
 
-	constructor(contentEl: HTMLElement, formField: FormField) {
-		this.contentEl = contentEl;
-		this.formField = formField;
+	protected readonly expressionContext: FormFieldFactory[];
+	protected dependentFields: FormFieldFactory[];
+
+	constructor(params: {
+		contentEl: HTMLElement;
+		formField: FormField;
+		expressionContext: FormFieldFactory[];
+	}) {
+		this.contentEl = params.contentEl;
+		this.formField = params.formField;
+		this.expressionContext = params.expressionContext;
+
+		this.initialiseFormField();
+		this.assignDefaultValue();
 	}
 
-	abstract createFormField(
-		dependentFields?: FormFieldFactory[],
-		sourceField?: FormFieldFactory
-	): Setting;
+	abstract get setting(): Setting;
 
-	protected setFormFieldType(): void {
+	abstract set value(valueToSet: string);
+
+	set dependents(dependents: FormFieldFactory[]) {
+		this.dependentFields = dependents;
+	}
+
+	public initialiseFormField(): void {
+		this.formField.setting = this.setting;
+	}
+
+	public assignDefaultValue(): void {
+		this.assignValue();
+	}
+
+	protected updateField(value: string) {
+		new Notice(`${this.formField.className} changed: ${value}`);
+
+		this.value = value;
+
+		this.dependentFields?.forEach((dependent) => dependent.assignValue());
+
+		console.log(`${this.formField.className} UPDATED`, this.formField);
+	}
+
+	protected assignValue(value?: string) {
+		const valueToAssing = value ? value : this.evaluateExpression();
+
+		if (valueToAssing === this.formField.content.value) return;
+
+		this.value = valueToAssing;
+	}
+
+	protected assignFormFieldAttributes(setting: Setting): void {
 		const htmlEl = this.contentEl.querySelector(
-			`.${this.formField.className} > .setting-item-control`
+			this.getFormFieldHtmlPath()
 		);
 
-		htmlEl?.firstElementChild?.setAttribute("type", this.formField.type);
+		htmlEl?.setAttribute("type", this.formField.type);
+
+		if (this.formField.description)
+			setting.setDesc(this.formField.description);
 	}
 
-	protected resolveFormFieldValue(sourceField?: FormField): string {
-		if (this.formField.content.value) return this.formField.content.value;
-
-		return (this.formField.content["value"] =
-			sourceField?.content.value ?? "");
-	}
-
-	protected getFormFieldHtmlPath(formField: FormField): string {
+	protected getFormFieldHtmlPath(formField = this.formField): string {
 		return `div.${formField.className} > div.setting-item-control > input`;
 	}
 
-	protected onChangeHandler(
-		value: string,
-		dependentFields: FormFieldFactory[]
-	) {
-		new Notice(`${this.formField.className} changed: ${value}`);
+	protected evaluateExpression(): string {
+		if (!this.formField.content.expression) return "";
 
-		dependentFields?.map((dependentField) =>
-			dependentField.assingValue(value, this.formField)
+		const [prefix, expressionToEvaluate, sufix] = this.splitExpression(
+			this.formField.content.expression
 		);
 
-		this.formField.content["value"] = value;
+		if (!expressionToEvaluate) return prefix;
+
+		const parsedExpression =
+			this.parseExpressionContext(expressionToEvaluate);
+
+		try {
+			const expressionResult = new Function(
+				`return ${parsedExpression}`
+			)();
+
+			return `${prefix}${expressionResult}${sufix ?? ""}`;
+		} catch (error) {
+			new Notice(
+				`Error on evaluating ${this.formField.className} expression`
+			);
+			console.error(error);
+
+			return `${prefix}${sufix ?? ""}`;
+		}
 	}
 
-	protected assingValue(value: string, _?: FormField) {
-		const fieldEl = this.contentEl.querySelector(
-			this.getFormFieldHtmlPath(this.formField)
-		);
+	private splitExpression(expression: string): string[] {
+		if (!(expression.includes("{{") && expression.includes("}}")))
+			return [expression];
 
-		(fieldEl as HTMLInputElement).value = value;
-		this.formField.content["value"] = value;
+		const expressionMatcher = new RegExp(/{{(.*)}}/);
+
+		const expressionToEvaluate = expressionMatcher.exec(expression)?.at(-1);
+
+		const prefix = expression.split("{{")[0];
+		const sufix = expression.split("}}")[1];
+
+		return [prefix, expressionToEvaluate ?? "", sufix];
+	}
+
+	private parseExpressionContext(expression: string): string {
+		const formFieldClassNames = getClassNamesFromExpression(expression);
+
+		formFieldClassNames.forEach((formFieldClassName) => {
+			const formField = this.expressionContext?.find(
+				(formField) =>
+					formField.formField.className === formFieldClassName
+			);
+
+			const classNameMatcher = new RegExp(
+				`\\$\\$\\.${formField?.formField.className}`
+			);
+
+			expression = expression.replace(
+				classNameMatcher,
+				`'${formField?.formField?.content?.value ?? ""}'`
+			);
+		});
+
+		return expression;
 	}
 }
 
 export class TextFormFieldFactory extends FormFieldFactory {
-	constructor(contentEl: HTMLElement, formField: FormField) {
-		super(contentEl, formField);
+	constructor(params: {
+		contentEl: HTMLElement;
+		formField: FormField;
+		expressionContext: FormFieldFactory[];
+	}) {
+		super(params);
 	}
 
-	createFormField(
-		dependentFields?: FormFieldFactory[],
-		sourceField?: FormFieldFactory
-	): Setting {
-		// console.log(this.formField);
+	get setting(): Setting {
 		const setting = new Setting(this.contentEl)
 			.setName(this.formField.name)
-			.setClass(this.formField.className);
+			.setClass(this.formField.className)
+			.addText((text) => text.onChange(this.updateField.bind(this)));
 
-		setting.addText((text) =>
-			text
-				.setValue(this.resolveFormFieldValue(sourceField?.formField))
-				.onChange((value) =>
-					this.onChangeHandler.bind(this)(value, dependentFields)
-				)
-		);
-
-		this.setFormFieldType();
-
-		if (this.formField.description)
-			setting.setDesc(this.formField.description);
+		this.assignFormFieldAttributes(setting);
 
 		return setting;
+	}
+
+	set value(valueToSet: string) {
+		const fieldEl = this.contentEl.querySelector(
+			this.getFormFieldHtmlPath()
+		);
+
+		if (fieldEl instanceof HTMLInputElement) {
+			fieldEl.value = valueToSet;
+			this.formField.content["value"] = valueToSet;
+		} else
+			new Notice(
+				`Can't find field element: ${this.getFormFieldHtmlPath()}`
+			);
 	}
 }
 
-export class DropownFormFieldFactory extends FormFieldFactory {
+export class DropdownFormFieldFactory extends FormFieldFactory {
 	formField: DropdownFormField;
-	constructor(contentEl: HTMLElement, formField: DropdownFormField) {
-		super(contentEl, formField);
+	constructor(params: {
+		contentEl: HTMLElement;
+		formField: FormField;
+		expressionContext: FormFieldFactory[];
+	}) {
+		super(params);
 	}
 
-	createFormField(
-		dependentFields?: FormFieldFactory[],
-		sourceField?: FormFieldFactory
-	): Setting {
-		// console.log(this.formField);
+	get setting(): Setting {
 		const setting = new Setting(this.contentEl)
 			.setName(this.formField.name)
-			.setClass(this.formField.className);
+			.setClass(this.formField.className)
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOptions(this.formField.options)
+					.onChange(this.updateField.bind(this))
+			);
 
-		setting.addDropdown((dropdown) =>
-			dropdown
-				.addOptions(this.formField.options)
-				.onChange((value) =>
-					this.onChangeHandler.bind(this)(value, dependentFields)
-				)
-		);
-
-		const firstOptionKey = Object.keys(this.formField.options)[0];
-
-		this.formField.content["value"] = this.formField.content.value
-			? this.formField.content.value
-			: this.formField.options[firstOptionKey];
-
-		this.setFormFieldType();
-
-		if (this.formField.description)
-			setting.setDesc(this.formField.description);
+		this.assignFormFieldAttributes(setting);
 
 		return setting;
 	}
 
-	protected getFormFieldHtmlPath(formField: FormField): string {
+	set value(valueToSet: string) {
+		const fieldEl = this.contentEl.querySelector(
+			this.getFormFieldHtmlPath()
+		);
+
+		if (fieldEl instanceof HTMLSelectElement) {
+			fieldEl.value = valueToSet;
+			this.formField.content["value"] = valueToSet;
+		} else
+			new Notice(
+				`Can't find field element: ${this.getFormFieldHtmlPath()}`
+			);
+	}
+
+	protected getFormFieldHtmlPath(formField = this.formField): string {
 		return `div.${formField.className} > div.setting-item-control > select`;
 	}
 
-	protected assingValue(value: string, sourceFormField?: FormField): void {
-		console.log("assinging dropdown typed");
-		const formFieldHtmlPath = this.getFormFieldHtmlPath(this.formField);
-		const fieldEl = this.contentEl.querySelector(formFieldHtmlPath);
+	protected assignValue(value?: string): void {
+		const valueToAssing = value ? value : this.evaluateExpression();
+
+		if (
+			valueToAssing === this.formField.content.value ||
+			valueToAssing === ""
+		)
+			return;
+
+		const formFieldHtmlPath = this.getFormFieldHtmlPath();
+		const fieldEl = this.contentEl.querySelector(
+			this.getFormFieldHtmlPath()
+		);
 
 		const postAddedOption = this.contentEl?.querySelector(
-			`${formFieldHtmlPath} > option.${
-				sourceFormField?.className ?? "post-added-option"
-			}`
+			`${formFieldHtmlPath} > option.post-added-option`
 		);
 
 		if (postAddedOption) fieldEl?.removeChild(postAddedOption);
 
 		fieldEl
-			?.createEl("option", { value: value, text: value })
-			.setAttr(
-				"class",
-				sourceFormField?.className ?? "post-added-option"
-			);
+			?.createEl("option", { value: valueToAssing, text: valueToAssing })
+			.setAttr("class", "post-added-option");
 
-		this.formField.content["value"] = value;
+		this.value = valueToAssing;
 	}
 }
 
@@ -165,52 +254,68 @@ export class Form {
 	}
 
 	createFormFields(formFields: FormField[]): void {
-		formFields.map((formField) => {
+		formFields.forEach((formField) => {
 			if (formField.setting) formField.setting.clear();
+
+			const factoryParams = {
+				formField,
+				contentEl: this.contentEl,
+				expressionContext: this.getExpressionContext(
+					formField.content?.expression
+				),
+			};
 
 			switch (formField.type) {
 				case FORM_FIELD_ELEMENT_TYPE.TEXT:
 				case FORM_FIELD_ELEMENT_TYPE.DATE:
 				case FORM_FIELD_ELEMENT_TYPE.TIME:
 					this.formFieldFactories.push(
-						new TextFormFieldFactory(this.contentEl, formField)
+						new TextFormFieldFactory(factoryParams)
 					);
 					break;
 				case FORM_FIELD_ELEMENT_TYPE.DROPDOWN:
 					this.formFieldFactories.push(
-						new DropownFormFieldFactory(
-							this.contentEl,
-							formField as DropdownFormField
-						)
+						new DropdownFormFieldFactory(factoryParams)
 					);
-
 					break;
 			}
 		});
 
-		this.formFieldFactories.map((factory) =>
-			factory.createFormField(
-				this.getDependentFields(factory.formField.className),
-				this.getSourceField(factory.formField)
+		this.formFieldFactories.forEach((factory, _, factories) => {
+			factory.dependents = this.getDependentFields(
+				factory.formField.className,
+				factories
+			);
+		});
+	}
+
+	private getDependentFields(
+		fieldClassName: string,
+		formFieldFactories: FormFieldFactory[]
+	): FormFieldFactory[] {
+		return formFieldFactories.filter((factory) =>
+			factory.formField.content?.expression?.includes(
+				`$$.${fieldClassName}`
 			)
 		);
 	}
 
-	private getDependentFields(
-		fieldClassName: string
-	): FormFieldFactory[] | undefined {
-		return this.formFieldFactories.filter((factory) =>
-			factory.formField.content?.source?.includes(`$$.${fieldClassName}`)
-		);
-	}
+	private getExpressionContext(expression?: string): FormFieldFactory[] {
+		const expressionContext: FormFieldFactory[] = [];
 
-	private getSourceField(formField: FormField): FormFieldFactory | undefined {
-		if (!formField.content?.source?.includes("$$")) return;
+		if (!expression) return expressionContext;
 
-		const sourceFieldClassName = formField.content.source.split(".")[1];
+		const formFieldClassNames = getClassNamesFromExpression(expression);
 
-		return this.formFieldFactories.find(
-			(factory) => factory.formField.className === sourceFieldClassName
-		);
+		formFieldClassNames.forEach((formFieldClassName) => {
+			const partialContext = this.formFieldFactories.find(
+				(formFieldFactory) =>
+					formFieldFactory.formField.className === formFieldClassName
+			);
+
+			if (partialContext) expressionContext.push(partialContext);
+		});
+
+		return expressionContext;
 	}
 }
