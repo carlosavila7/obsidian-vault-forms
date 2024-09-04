@@ -47,18 +47,20 @@ export default class MyPlugin extends Plugin {
 
 class SampleModal extends Modal {
 	formFields: FormField[];
+	app: App;
 
 	constructor(app: App, formFields: FormField[]) {
 		super(app);
+		this.app = app;
 		this.formFields = formFields;
 	}
 
-	onOpen() {
+	async onOpen() {
 		console.log(this.formFields);
 		const { contentEl } = this;
 		contentEl.createEl("h2", { text: "Title" });
 
-		new Form(contentEl, this.formFields);
+		new Form(contentEl, this.app, this.formFields);
 	}
 
 	onClose() {

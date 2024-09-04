@@ -8,3 +8,15 @@ export function getClassNamesFromExpression(expression: string): string[] {
 
 	return formFieldClassNames;
 }
+
+export function getFilePathsFromExpression(expression: string): string[] {
+	const filePathMatcher = new RegExp(/%%([^%%]*)%%/, 'g');
+
+	let matches = undefined;
+	const filePaths = [];
+
+	while((matches = filePathMatcher.exec(expression)) !== null)
+		filePaths.push(matches[1]);
+
+	return filePaths;
+}
