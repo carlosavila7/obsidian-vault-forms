@@ -50,12 +50,10 @@ abstract class FormFieldFactory {
 	protected async updateField(value?: string): Promise<void> {
 		new Notice(`${this.formField.className} changed: ${value}`);
 
-		await this.assignValue(value)
+		await this.assignValue(value);
 
 		await Promise.all(
-			this.dependentFields?.map((dependent) =>
-				dependent.updateField()
-			)
+			this.dependentFields?.map((dependent) => dependent.updateField())
 		);
 
 		console.log(
@@ -268,7 +266,7 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 			.setClass(this.formField.className)
 			.addDropdown((dropdown) =>
 				dropdown
-					.addOptions(this.formField.options)
+					.addOptions(this.formField.options?.value ?? {})
 					.onChange(this.updateField.bind(this))
 			);
 
@@ -298,9 +296,8 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 	protected async assignValue(value?: string): Promise<void> {
 		const valueToAssing = value
 			? value
-			: this.formField.content.expression
-			? await this.evaluateExpression()
-			: Object.values(this.formField.options)[0];
+			: (await this.evaluateExpression()) ??
+			  Object.values(this.formField.options?.value ?? {})[0];
 
 		if (
 			valueToAssing === this.formField.content.value ||
@@ -308,7 +305,11 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 		)
 			return;
 
-		if (!Object.values(this.formField.options).includes(valueToAssing)) {
+		if (
+			!Object.values(this.formField.options?.value ?? {}).includes(
+				valueToAssing
+			)
+		) {
 			const formFieldHtmlPath = this.getFormFieldHtmlPath();
 			const fieldEl = this.contentEl.querySelector(
 				this.getFormFieldHtmlPath()

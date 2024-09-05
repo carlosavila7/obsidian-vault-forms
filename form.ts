@@ -40,7 +40,7 @@ class DropdownOptions {
 
 export class DropdownFormField extends BaseFormField {
 	type = FORM_FIELD_ELEMENT_TYPE.DROPDOWN;
-	options: Record<string, string>;
+	options: DropdownOptions;
 }
 
 export type FormField =
@@ -49,6 +49,7 @@ export type FormField =
 	| TimeFormFieldField
 	| DropdownFormField;
 
+//TODO: implement expresion on options
 export const formFieldExamples: FormField[] = [
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
@@ -63,7 +64,10 @@ export const formFieldExamples: FormField[] = [
 		name: "Field 02",
 		description: "second field",
 		className: "field02",
-		content: { expression: "{{%%expenses/1716155633804.md%%.category + ' ' + $$.field01}}" },
+		content: {
+			expression:
+				"{{%%expenses/1716155633804.md%%.category + ' ' + $$.field01}}",
+		},
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
@@ -78,6 +82,14 @@ export const formFieldExamples: FormField[] = [
 		description: "forth field",
 		className: "field04",
 		content: { expression: "{{$$.field03}}" },
-		options: { a: "a", b: "b" },
-	}
+		options: { value: { a: "a", b: "b" } },
+	},
+	{
+		type: FORM_FIELD_ELEMENT_TYPE.DROPDOWN,
+		name: "Field 05",
+		description: "fifth field",
+		className: "field05",
+		content: { expression: "third item" },
+		options: { value: { 'first item': "first item", 'second item': "second item" } },
+	},
 ];
