@@ -1,6 +1,15 @@
-import { DropdownFormField, FORM_FIELD_ELEMENT_TYPE, FormField } from "form";
+import {
+	DropdownFormField,
+	FORM_FIELD_ELEMENT_TYPE,
+	FORM_FIELD_STATE,
+	FormField,
+} from "form";
 import { App, Notice, Setting } from "obsidian";
-import { getClassNamesFromExpression, getFilePathsFromExpression } from "utils";
+import {
+	fromArrayToRecord,
+	getClassNamesFromExpression,
+	getFilePathsFromExpression,
+} from "utils";
 
 abstract class FormFieldFactory {
 	public readonly formField: FormField;
@@ -20,6 +29,8 @@ abstract class FormFieldFactory {
 		this.app = params.app;
 		this.formField = params.formField;
 		this.expressionContext = params.expressionContext;
+
+		this.formField.state = FORM_FIELD_STATE.CREATED;
 	}
 
 	protected abstract getSetting(): Setting;
@@ -33,44 +44,40 @@ abstract class FormFieldFactory {
 	public async initialiseFormField(
 		dependents: FormFieldFactory[]
 	): Promise<void> {
-		console.log(
-			`[initializeFormField] ${this.formField.className.toUpperCase()} dependents: ${
-				this.dependents
-			}`
-		);
-		this.getSetting().then((value) => (this.formField.setting = value));
+		this.formField.setting = this.getSetting();
 		await this.assignDefaultValue();
+
 		this.dependents = dependents;
+		this.formField.state = FORM_FIELD_STATE.INITIALIZED;
 	}
 
 	protected async assignDefaultValue(): Promise<void> {
 		await this.assignValue();
 	}
 
-	protected async updateField(value?: string): Promise<void> {
+	protected async updateField(
+		value?: string,
+		updatedBy?: string
+	): Promise<void> {
 		new Notice(`${this.formField.className} changed: ${value}`);
 
-		await this.assignValue(value);
+		await this.assignValue(value, updatedBy);
 
 		await Promise.all(
-			this.dependentFields?.map((dependent) => dependent.updateField())
-		);
-
-		console.log(
-			`[updateField] ${this.formField.className.toUpperCase()} formField: ${JSON.stringify(
-				this.formField.content.value
-			)}`
+			this.dependentFields?.map((dependent) =>
+				dependent.updateField(undefined, this.formField.className)
+			)
 		);
 	}
 
-	protected async assignValue(value?: string): Promise<void> {
+	protected async assignValue(
+		value?: string,
+		updatedBy?: string
+	): Promise<void> {
 		const valueToAssing = value ? value : await this.evaluateExpression();
 
 		if (valueToAssing === this.formField.content.value) return;
 
-		console.log(
-			`[assignValue] ${this.formField.className.toUpperCase()} valueToAssing: ${valueToAssing}`
-		);
 		this.value = valueToAssing;
 	}
 
@@ -101,13 +108,10 @@ abstract class FormFieldFactory {
 		const parsedExpression = await this.parseExpressionContext(
 			expressionToEvaluate
 		);
-		console.log(
-			`[evaluateExpression] ${this.formField.className.toUpperCase()} parsedExpression: ${parsedExpression}`
-		);
 
 		try {
 			const expressionResult = new Function(
-				`return ${parsedExpression}`
+				`return ${parsedExpression};`
 			)();
 
 			return `${prefix}${expressionResult}${sufix ?? ""}`;
@@ -121,13 +125,13 @@ abstract class FormFieldFactory {
 		}
 	}
 
-	private splitExpression(expression: string): string[] {
+	protected splitExpression(expression: string): string[] {
 		if (!(expression.includes("{{") && expression.includes("}}")))
 			return [expression];
 
 		const expressionMatcher = new RegExp(/{{(.*)}}/);
 
-		const expressionToEvaluate = expressionMatcher.exec(expression)?.at(-1);
+		const expressionToEvaluate = expressionMatcher.exec(expression)?.at(0);
 
 		const prefix = expression.split("{{")[0];
 		const sufix = expression.split("}}")[1];
@@ -135,26 +139,15 @@ abstract class FormFieldFactory {
 		return [prefix, expressionToEvaluate ?? "", sufix];
 	}
 
-	private async parseExpressionContext(expression: string): Promise<string> {
+	protected async parseExpressionContext(
+		expression: string
+	): Promise<string> {
 		const formFieldClassNames = getClassNamesFromExpression(expression);
-
-		console.log(
-			`[parseExpressionContext] ${this.formField.className.toUpperCase()} expression: ${expression}`
-		);
-		console.log(
-			`[parseExpressionContext] ${this.formField.className.toUpperCase()} classNames: ${formFieldClassNames}`
-		);
 
 		formFieldClassNames.forEach((formFieldClassName) => {
 			const formField = this.expressionContext?.find(
 				(formField) =>
 					formField.formField.className === formFieldClassName
-			);
-
-			console.log(
-				`[parseExpressionContext] ${this.formField.className.toUpperCase()} ${formFieldClassName}: ${
-					formField?.formField?.content?.value
-				}`
 			);
 
 			const classNameMatcher = new RegExp(
@@ -175,9 +168,6 @@ abstract class FormFieldFactory {
 
 		const filePaths = getFilePathsFromExpression(expression);
 
-		console.log(
-			`[parseExpressionContext] ${this.formField.className.toUpperCase()} filePaths: ${filePaths}`
-		);
 		await Promise.all(
 			filePaths.map(async (filePath) => {
 				const filePathMatcher = new RegExp(`%%${filePath}%%`);
@@ -209,7 +199,9 @@ abstract class FormFieldFactory {
 			})
 		);
 
-		return expression;
+		const expressionContentMatcher = new RegExp(/{{(.*)}}/);
+
+		return expressionContentMatcher.exec(expression)?.at(-1) ?? "";
 	}
 }
 
@@ -261,12 +253,13 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 	}
 
 	protected getSetting(): Setting {
+		const options = fromArrayToRecord(this.formField.options.value);
 		const setting = new Setting(this.contentEl)
 			.setName(this.formField.name)
 			.setClass(this.formField.className)
 			.addDropdown((dropdown) =>
 				dropdown
-					.addOptions(this.formField.options?.value ?? {})
+					.addOptions(options)
 					.onChange(this.updateField.bind(this))
 			);
 
@@ -293,7 +286,42 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 		return `div.${formField.className} > div.setting-item-control > select`;
 	}
 
-	protected async assignValue(value?: string): Promise<void> {
+	private async resolveDropdownOptions(
+		updatedBy: string = this.formField.className
+	): Promise<void> {
+		const expressionToEvaluate = this.formField.options?.expression;
+		if (!expressionToEvaluate) return;
+
+		if (
+			this.formField.state === FORM_FIELD_STATE.INITIALIZED &&
+			!expressionToEvaluate.includes(updatedBy)
+		)
+			return;
+
+		const parsedExpression = await this.parseExpressionContext(
+			expressionToEvaluate
+		);
+		try {
+			const newOptions: string[] = new Function(
+				`return ${parsedExpression};`
+			)();
+
+			newOptions.map((option) =>
+				this.addNewOption.bind(this)(option, updatedBy, false)
+			);
+		} catch (error) {
+			new Notice(
+				`error on evaluating ${this.formField.className} expression`
+			);
+			console.error(error);
+		}
+	}
+
+	protected async assignValue(
+		value?: string,
+		updatedBy?: string
+	): Promise<void> {
+		await this.resolveDropdownOptions(updatedBy);
 		const valueToAssing = value
 			? value
 			: (await this.evaluateExpression()) ??
@@ -306,30 +334,45 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 			return;
 
 		if (
-			!Object.values(this.formField.options?.value ?? {}).includes(
-				valueToAssing
-			)
-		) {
-			const formFieldHtmlPath = this.getFormFieldHtmlPath();
-			const fieldEl = this.contentEl.querySelector(
-				this.getFormFieldHtmlPath()
-			);
-
-			const postAddedOption = this.contentEl?.querySelector(
-				`${formFieldHtmlPath} > option.post-added-option`
-			);
-
-			if (postAddedOption) fieldEl?.removeChild(postAddedOption);
-
-			fieldEl
-				?.createEl("option", {
-					value: valueToAssing,
-					text: valueToAssing,
-				})
-				.setAttr("class", "post-added-option");
-		}
+			this.formField.options.value &&
+			!Object.values(this.formField.options.value).includes(valueToAssing)
+		)
+			this.addNewOption(valueToAssing, updatedBy, !!updatedBy);
 
 		this.value = valueToAssing;
+	}
+
+	private addNewOption(
+		option: string,
+		updatedBy: string = this.formField.className,
+		keepOnlyOneByUpdatedField: boolean = true
+	): void {
+		if (this.formField.options?.value?.includes(option)) return;
+
+		const formFieldHtmlPath = this.getFormFieldHtmlPath();
+		const fieldEl = this.contentEl.querySelector(
+			this.getFormFieldHtmlPath()
+		);
+
+		const postAddedOption = keepOnlyOneByUpdatedField
+			? this.contentEl?.querySelector(
+					`${formFieldHtmlPath} > option.${updatedBy}`
+			  )
+			: undefined;
+
+		if (postAddedOption && keepOnlyOneByUpdatedField)
+			fieldEl?.removeChild(postAddedOption);
+
+		fieldEl
+			?.createEl("option", {
+				value: option,
+				text: option,
+			})
+			.setAttr("class", updatedBy);
+
+		this.formField.options.value = this.formField.options.value
+			? [...this.formField.options.value, option]
+			: [option];
 	}
 }
 

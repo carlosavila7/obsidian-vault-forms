@@ -7,12 +7,18 @@ export enum FORM_FIELD_ELEMENT_TYPE {
 	DROPDOWN = "dropdown",
 }
 
+export enum FORM_FIELD_STATE {
+	INITIALIZED = 'initialized',
+	CREATED = 'created'
+}
+
 class FormFieldContent {
 	expression?: string;
 	value?: string;
 }
 
 class BaseFormField {
+	state?: FORM_FIELD_STATE;
 	name: string;
 	className: string;
 	type: FORM_FIELD_ELEMENT_TYPE;
@@ -34,7 +40,7 @@ export class TimeFormFieldField extends BaseFormField {
 }
 
 class DropdownOptions {
-	value?: Record<string, string>;
+	value?: string[];
 	expression?: string;
 }
 
@@ -82,14 +88,14 @@ export const formFieldExamples: FormField[] = [
 		description: "forth field",
 		className: "field04",
 		content: { expression: "{{$$.field03}}" },
-		options: { value: { a: "a", b: "b" } },
+		options: { value: ["a", "b"] },
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.DROPDOWN,
 		name: "Field 05",
 		description: "fifth field",
 		className: "field05",
-		content: { expression: "third item" },
-		options: { value: { 'first item': "first item", 'second item': "second item" } },
+		content: { expression: '{{$$.field02}}' },
+		options: { expression: "{{Object.values(%%my props.md%%).map(i => i.toUpperCase())}}" },
 	},
 ];

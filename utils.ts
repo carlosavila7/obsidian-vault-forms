@@ -10,13 +10,25 @@ export function getClassNamesFromExpression(expression: string): string[] {
 }
 
 export function getFilePathsFromExpression(expression: string): string[] {
-	const filePathMatcher = new RegExp(/%%([^%%]*)%%/, 'g');
+	const filePathMatcher = new RegExp(/%%([^%%]*)%%/, "g");
 
 	let matches = undefined;
 	const filePaths = [];
 
-	while((matches = filePathMatcher.exec(expression)) !== null)
+	while ((matches = filePathMatcher.exec(expression)) !== null)
 		filePaths.push(matches[1]);
 
 	return filePaths;
+}
+
+export function fromArrayToRecord(array?: string[]): Record<string, string> {
+	if(!array) return {};
+
+	const record: Record<string, string> = {};
+
+	array.map((item) => {
+		record[item] = item;
+	});
+
+	return record;
 }
