@@ -1,6 +1,17 @@
-import { FormField, formFieldExamples } from "form";
+import {
+	FormField,
+	formFieldExamples,
+	personalFinanceReportExample,
+} from "form";
 import { Form } from "form-field.factory";
-import { App, Modal, Plugin, PluginSettingTab, Setting } from "obsidian";
+import {
+	App,
+	Modal,
+	Notice,
+	Plugin,
+	PluginSettingTab,
+	Setting,
+} from "obsidian";
 
 // Remember to rename these classes and interfaces!
 
@@ -21,11 +32,11 @@ export default class MyPlugin extends Plugin {
 
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon(
-			"dice",
-			"Sample Plugin",
+			"wallet",
+			"Report expense",
 			(evt: MouseEvent) => {
 				// Called when the user clicks the icon.
-				new SampleModal(this.app, formFieldExamples).open();
+				new SampleModal(this.app, personalFinanceReportExample).open();
 			}
 		);
 	}
@@ -46,26 +57,40 @@ export default class MyPlugin extends Plugin {
 }
 
 class SampleModal extends Modal {
-	formFields: FormField[];
-	app: App;
+	public app: App;
+	private form: Form;
 
 	constructor(app: App, formFields: FormField[]) {
 		super(app);
+
 		this.app = app;
-		this.formFields = formFields;
+		this.form = new Form(this.contentEl, this.app, formFields);
 	}
 
 	async onOpen() {
-		console.log(this.formFields);
 		const { contentEl } = this;
-		contentEl.createEl("h2", { text: "Title" });
+		contentEl.createEl("h2", { text: "Report expense" });
 
-		new Form(contentEl, this.app, this.formFields);
+		await this.form.createFormFields();
+
+		new Setting(this.contentEl).addButton((button) =>
+			button
+				.setButtonText("Save expense")
+				.setCta()
+				.onClick(() => {
+					const frontmatterProps = this.form.getDataAsFrontmatter();
+					this.close();
+					
+					this.app.vault.create(
+						`expenses/${new Date().getTime()}.md`,
+						frontmatterProps
+					);
+				})
+		);
 	}
 
 	onClose() {
-		const { contentEl } = this;
-		contentEl.empty();
+		this.form.setFormDataNull();
 	}
 }
 

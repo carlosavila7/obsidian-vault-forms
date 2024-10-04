@@ -16,19 +16,19 @@ abstract class FormFieldFactory {
 	protected readonly contentEl: HTMLElement;
 	protected readonly app: App;
 
-	protected readonly expressionContext: FormFieldFactory[];
+	protected readonly expressionContext?: FormFieldFactory[];
 	protected dependentFields: FormFieldFactory[];
 
 	constructor(params: {
 		contentEl: HTMLElement;
 		app: App;
 		formField: FormField;
-		expressionContext: FormFieldFactory[];
+		expressionContext?: FormFieldFactory[];
 	}) {
 		this.contentEl = params.contentEl;
 		this.app = params.app;
 		this.formField = params.formField;
-		this.expressionContext = params.expressionContext;
+		this.expressionContext = params?.expressionContext;
 
 		this.formField.state = FORM_FIELD_STATE.CREATED;
 	}
@@ -74,7 +74,12 @@ abstract class FormFieldFactory {
 		value?: string,
 		updatedBy?: string
 	): Promise<void> {
-		const valueToAssing = value ? value : await this.evaluateExpression();
+		const valueToAssing = value
+			? value
+			: await this.evaluateExpression(
+					this.formField.content?.expression,
+					this.expressionContext
+			  );
 
 		if (valueToAssing === this.formField.content.value) return;
 
@@ -96,17 +101,21 @@ abstract class FormFieldFactory {
 		return `div.${formField.className} > div.setting-item-control > input`;
 	}
 
-	protected async evaluateExpression(): Promise<string> {
+	protected async evaluateExpression(
+		expression?: string,
+		expressionContext?: FormFieldFactory[]
+	): Promise<string> {
 		if (!this.formField.content.expression) return "";
 
-		const [prefix, expressionToEvaluate, sufix] = this.splitExpression(
-			this.formField.content.expression
-		);
+		const [prefix, expressionToEvaluate, sufix] = expression
+			? this.splitExpression(expression)
+			: ["", "", ""];
 
 		if (!expressionToEvaluate) return prefix;
 
 		const parsedExpression = await this.parseExpressionContext(
-			expressionToEvaluate
+			expressionToEvaluate,
+			expressionContext
 		);
 
 		try {
@@ -140,12 +149,13 @@ abstract class FormFieldFactory {
 	}
 
 	protected async parseExpressionContext(
-		expression: string
+		expression: string,
+		expressionContext?: FormFieldFactory[]
 	): Promise<string> {
 		const formFieldClassNames = getClassNamesFromExpression(expression);
 
 		formFieldClassNames.forEach((formFieldClassName) => {
-			const formField = this.expressionContext?.find(
+			const formField = expressionContext?.find(
 				(formField) =>
 					formField.formField.className === formFieldClassName
 			);
@@ -230,7 +240,6 @@ export class TextFormFieldFactory extends FormFieldFactory {
 		const fieldEl = this.contentEl.querySelector(
 			this.getFormFieldHtmlPath()
 		);
-
 		if (fieldEl instanceof HTMLInputElement) {
 			fieldEl.value = valueToSet;
 			this.formField.content["value"] = valueToSet;
@@ -243,13 +252,16 @@ export class TextFormFieldFactory extends FormFieldFactory {
 
 export class DropdownFormFieldFactory extends FormFieldFactory {
 	formField: DropdownFormField;
+	optionExpressionContext?: FormFieldFactory[];
 	constructor(params: {
 		contentEl: HTMLElement;
 		app: App;
 		formField: FormField;
 		expressionContext: FormFieldFactory[];
+		optionExpressionContext?: FormFieldFactory[];
 	}) {
 		super(params);
+		this.optionExpressionContext = params.optionExpressionContext;
 	}
 
 	protected getSetting(): Setting {
@@ -290,28 +302,28 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 		updatedBy: string = this.formField.className
 	): Promise<void> {
 		const expressionToEvaluate = this.formField.options?.expression;
-		if (!expressionToEvaluate) return;
 
 		if (
-			this.formField.state === FORM_FIELD_STATE.INITIALIZED &&
-			!expressionToEvaluate.includes(updatedBy)
+			!expressionToEvaluate ||
+			(this.formField.state === FORM_FIELD_STATE.INITIALIZED &&
+				!expressionToEvaluate.includes(updatedBy))
 		)
 			return;
 
 		const parsedExpression = await this.parseExpressionContext(
-			expressionToEvaluate
+			expressionToEvaluate,
+			this.optionExpressionContext
 		);
+
 		try {
 			const newOptions: string[] = new Function(
 				`return ${parsedExpression};`
 			)();
 
-			newOptions.map((option) =>
-				this.addNewOption.bind(this)(option, updatedBy, false)
-			);
+			this.addNewOptions.bind(this)(newOptions, updatedBy, false, true);
 		} catch (error) {
 			new Notice(
-				`error on evaluating ${this.formField.className} expression`
+				`error on evaluating ${this.formField.className} option expression`
 			);
 			console.error(error);
 		}
@@ -322,10 +334,13 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 		updatedBy?: string
 	): Promise<void> {
 		await this.resolveDropdownOptions(updatedBy);
+
 		const valueToAssing = value
 			? value
-			: (await this.evaluateExpression()) ??
-			  Object.values(this.formField.options?.value ?? {})[0];
+			: (await this.evaluateExpression(
+					this.formField.content.expression,
+					this.expressionContext
+			  )) || Object.values(this.formField.options?.value ?? {})[0];
 
 		if (
 			valueToAssing === this.formField.content.value ||
@@ -337,59 +352,71 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 			this.formField.options.value &&
 			!Object.values(this.formField.options.value).includes(valueToAssing)
 		)
-			this.addNewOption(valueToAssing, updatedBy, !!updatedBy);
+			this.addNewOptions([valueToAssing], updatedBy, !!updatedBy);
 
 		this.value = valueToAssing;
 	}
 
-	private addNewOption(
-		option: string,
+	private addNewOptions(
+		newOptions: string[],
 		updatedBy: string = this.formField.className,
-		keepOnlyOneByUpdatedField: boolean = true
+		keepOnlyOneByUpdatedField: boolean = true,
+		removeOldOptions: boolean = false
 	): void {
-		if (this.formField.options?.value?.includes(option)) return;
+		if (!newOptions.length) return;
 
 		const formFieldHtmlPath = this.getFormFieldHtmlPath();
 		const fieldEl = this.contentEl.querySelector(
 			this.getFormFieldHtmlPath()
 		);
 
-		const postAddedOption = keepOnlyOneByUpdatedField
-			? this.contentEl?.querySelector(
-					`${formFieldHtmlPath} > option.${updatedBy}`
-			  )
-			: undefined;
+		if (!fieldEl) return;
 
-		if (postAddedOption && keepOnlyOneByUpdatedField)
-			fieldEl?.removeChild(postAddedOption);
+		if (removeOldOptions) {
+			fieldEl.innerHTML = "";
 
-		fieldEl
-			?.createEl("option", {
-				value: option,
-				text: option,
-			})
-			.setAttr("class", updatedBy);
+			this.formField.options.value = newOptions;
+		}
 
-		this.formField.options.value = this.formField.options.value
-			? [...this.formField.options.value, option]
-			: [option];
+		newOptions.forEach((newOption) => {
+			const postAddedOption = keepOnlyOneByUpdatedField
+				? this.contentEl?.querySelector(
+						`${formFieldHtmlPath} > option.${updatedBy}`
+				  )
+				: undefined;
+
+			if (postAddedOption && keepOnlyOneByUpdatedField)
+				fieldEl.removeChild(postAddedOption);
+
+			fieldEl
+				.createEl("option", {
+					value: newOption,
+					text: newOption,
+				})
+				.setAttr("class", updatedBy);
+
+			this.formField.options.value = this.formField.options.value
+				? [...this.formField.options.value, newOption]
+				: [newOption];
+		});
 	}
 }
 
 export class Form {
-	contentEl: HTMLElement;
-	app: App;
+	private contentEl: HTMLElement;
+	private app: App;
 
-	formFieldFactories: FormFieldFactory[] = [];
+	private formFieldFactories: FormFieldFactory[] = [];
+	private formFields: FormField[];
 
 	constructor(contentEl: HTMLElement, app: App, formFields: FormField[]) {
 		this.contentEl = contentEl;
 		this.app = app;
-		this.createFormFields(formFields);
+		this.formFields = formFields;
 	}
 
-	async createFormFields(formFields: FormField[]): Promise<void> {
-		formFields.forEach((formField) => {
+	public async createFormFields(): Promise<void> {
+		this.formFields.forEach((formField) => {
 			if (formField.setting) formField.setting.clear();
 
 			const factoryParams = {
@@ -405,13 +432,20 @@ export class Form {
 				case FORM_FIELD_ELEMENT_TYPE.TEXT:
 				case FORM_FIELD_ELEMENT_TYPE.DATE:
 				case FORM_FIELD_ELEMENT_TYPE.TIME:
+				case FORM_FIELD_ELEMENT_TYPE.NUMBER:
 					this.formFieldFactories.push(
 						new TextFormFieldFactory(factoryParams)
 					);
 					break;
 				case FORM_FIELD_ELEMENT_TYPE.DROPDOWN:
 					this.formFieldFactories.push(
-						new DropdownFormFieldFactory(factoryParams)
+						new DropdownFormFieldFactory({
+							optionExpressionContext: this.getExpressionContext(
+								(formField as DropdownFormField).options
+									.expression
+							),
+							...factoryParams,
+						})
 					);
 					break;
 			}
@@ -431,10 +465,14 @@ export class Form {
 		fieldClassName: string,
 		formFieldFactories: FormFieldFactory[]
 	): FormFieldFactory[] {
-		return formFieldFactories.filter((factory) =>
-			factory.formField.content?.expression?.includes(
-				`$$.${fieldClassName}`
-			)
+		return formFieldFactories.filter(
+			(factory) =>
+				factory.formField.content?.expression?.includes(
+					`$$.${fieldClassName}`
+				) ||
+				(
+					factory.formField as DropdownFormField
+				).options?.expression?.includes(`$$.${fieldClassName}`)
 		);
 	}
 
@@ -455,5 +493,31 @@ export class Form {
 		});
 
 		return expressionContext;
+	}
+
+	public getDataAsFrontmatter(): string {
+		let frontmatterString = "";
+		this.formFieldFactories.map((factory) => {
+			console.log(
+				factory.formField.className,
+				factory.formField.content.value,
+				factory.value
+			);
+			const stringValue =
+				factory.formField.type === FORM_FIELD_ELEMENT_TYPE.DROPDOWN ||
+				factory.formField.type === FORM_FIELD_ELEMENT_TYPE.TEXT
+					? `"${factory.formField.content?.value ?? ""}"`
+					: factory.formField.content?.value;
+
+			frontmatterString += `${factory.formField.className}: ${stringValue}\n`;
+		});
+
+		return `---\n${frontmatterString}---`;
+	}
+
+	public setFormDataNull(): void {
+		this.formFieldFactories.forEach(
+			(factory) => (factory.formField.content.value = undefined)
+		);
 	}
 }
