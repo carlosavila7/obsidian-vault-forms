@@ -250,6 +250,35 @@ export class TextFormFieldFactory extends FormFieldFactory {
 	}
 }
 
+export class TimeFormFieldFactory extends TextFormFieldFactory {
+	protected async assignValue(
+		value?: string,
+		updatedBy?: string
+	): Promise<void> {
+		let valueToAssing = value
+			? value
+			: await this.evaluateExpression(
+					this.formField.content?.expression,
+					this.expressionContext
+			  );
+
+		let [hour, minute] = valueToAssing.split(":");
+
+		if (!hour || !minute) {
+			new Notice(`Unexpected format for time field. Expected is HH:mm`);
+			return
+		}
+
+		hour = hour.length === 2 ? hour : `0${hour}`;
+		minute = minute.length === 2 ? minute : `0${minute}`;
+
+		valueToAssing = `${hour}:${minute}`;
+
+		if (valueToAssing === this.formField.content.value) return;
+
+		this.value = valueToAssing;
+	}
+}
 export class DropdownFormFieldFactory extends FormFieldFactory {
 	formField: DropdownFormField;
 	optionExpressionContext?: FormFieldFactory[];
@@ -431,10 +460,14 @@ export class Form {
 			switch (formField.type) {
 				case FORM_FIELD_ELEMENT_TYPE.TEXT:
 				case FORM_FIELD_ELEMENT_TYPE.DATE:
-				case FORM_FIELD_ELEMENT_TYPE.TIME:
 				case FORM_FIELD_ELEMENT_TYPE.NUMBER:
 					this.formFieldFactories.push(
 						new TextFormFieldFactory(factoryParams)
+					);
+					break;
+				case FORM_FIELD_ELEMENT_TYPE.TIME:
+					this.formFieldFactories.push(
+						new TimeFormFieldFactory(factoryParams)
 					);
 					break;
 				case FORM_FIELD_ELEMENT_TYPE.DROPDOWN:
@@ -498,11 +531,6 @@ export class Form {
 	public getDataAsFrontmatter(): string {
 		let frontmatterString = "";
 		this.formFieldFactories.map((factory) => {
-			console.log(
-				factory.formField.className,
-				factory.formField.content.value,
-				factory.value
-			);
 			const stringValue =
 				factory.formField.type === FORM_FIELD_ELEMENT_TYPE.DROPDOWN ||
 				factory.formField.type === FORM_FIELD_ELEMENT_TYPE.TEXT
