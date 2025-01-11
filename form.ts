@@ -24,6 +24,7 @@ class BaseFormField {
 	className: string;
 	type: FORM_FIELD_ELEMENT_TYPE;
 	description?: string;
+	placeholder?: string;
 	content: FormFieldContent;
 	setting?: Setting;
 }
@@ -97,7 +98,8 @@ export const personalFinanceReportExample: FormField[] = [
 		name: "Cost",
 		className: "cost",
 		description: "Enter how much it cost",
-		content: {}
+		placeholder: '0.00',
+		content: {},
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.DROPDOWN,
@@ -105,7 +107,7 @@ export const personalFinanceReportExample: FormField[] = [
 		description: "Select expense payment origin",
 		className: "origin",
 		content: {},
-		options: {expression: '{{%%expenses-dictionary.md%%.origin}}'}
+		options: { expression: "{{%%expenses-dictionary.md%%.origin}}" },
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.DROPDOWN,
@@ -113,21 +115,43 @@ export const personalFinanceReportExample: FormField[] = [
 		description: "Select expense payment type",
 		className: "payment-type",
 		content: {},
-		options: {expression: '{{%%expenses-dictionary.md%%[`${$$.origin === "voucher" ? "voucher" : "payment-type"}`]}}'}
+		options: {
+			expression:
+				'{{%%expenses-dictionary.md%%[`${$$.origin === "Voucher" ? "voucher" : "payment-type"}`]}}',
+		},
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
-		name: "Description",
-		description: "Enter expense description",
-		className: "description",
-		content: {}},
+		name: "Bougth at",
+		description: "Enter where it was spent",
+		className: 'bought-at',
+		placeholder: "Seller`s name",
+		content: {},
+		options: { expression: "{{%%expenses-dictionary.md%%.city}}" },
+	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.DROPDOWN,
 		name: "City",
 		description: "Select where it was spent",
 		className: "city",
 		content: {},
-		options: {expression: '{{%%expenses-dictionary.md%%.city}}'}
+		options: { expression: "{{%%expenses-dictionary.md%%.city}}" },
+	},
+	{
+		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
+		name: "Description",
+		description: 'Enter expense description',
+		placeholder: "Expense description",
+		className: "description",
+		content: {},
+	},
+	{
+		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
+		name: "Grouping Tag",
+		description: "Add tag to semantic grouping",
+		placeholder: '#semanticTag',
+		className: "grouping-tag",
+		content: {},
 	},
 ];
 

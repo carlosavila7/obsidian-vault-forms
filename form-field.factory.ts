@@ -93,6 +93,9 @@ abstract class FormFieldFactory {
 
 		htmlEl?.setAttribute("type", this.formField.type);
 
+		if (this.formField.placeholder)
+			htmlEl?.setAttribute("placeholder", this.formField?.placeholder);
+
 		if (this.formField.description)
 			setting.setDesc(this.formField.description);
 	}
@@ -266,7 +269,7 @@ export class TimeFormFieldFactory extends TextFormFieldFactory {
 
 		if (!hour || !minute) {
 			new Notice(`Unexpected format for time field. Expected is HH:mm`);
-			return
+			return;
 		}
 
 		hour = hour.length === 2 ? hour : `0${hour}`;
@@ -541,6 +544,20 @@ export class Form {
 		});
 
 		return `---\n${frontmatterString}---`;
+	}
+
+	public getTimestampNamingStrategy(): string {
+		const date = this.formFieldFactories.find(
+			(factory) => factory.formField.className === "date"
+		)?.formField.content.value;
+
+		const time = this.formFieldFactories.find(
+			(factory) => factory.formField.className === "time"
+		)?.formField.content.value;
+
+		const expenseTime = new Date(`${date} ${time}`).getTime();
+		const currentMilliseconds = new Date().getMilliseconds();
+		return (expenseTime + currentMilliseconds).toString(36);
 	}
 
 	public setFormDataNull(): void {

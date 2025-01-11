@@ -79,10 +79,11 @@ class SampleModal extends Modal {
 				.setCta()
 				.onClick(() => {
 					const frontmatterProps = this.form.getDataAsFrontmatter();
+					const formInputTimestamp = this.form.getTimestampNamingStrategy();
 					this.close();
-					
+
 					this.app.vault.create(
-						`expenses/${new Date().getTime()}.md`,
+						`expenses/${formInputTimestamp}.md`,
 						frontmatterProps
 					);
 				})
