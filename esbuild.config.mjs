@@ -28,7 +28,7 @@ const context = await esbuild.context({
 		"@codemirror/search",
 		"@codemirror/state",
 		"@codemirror/view",
-		"@lezer/common",
+		"@lezer/common", 
 		"@lezer/highlight",
 		"@lezer/lr",
 		...builtins],
@@ -37,7 +37,7 @@ const context = await esbuild.context({
 	logLevel: "info",
 	sourcemap: prod ? false : "inline",
 	treeShaking: true,
-	outfile: "main.js",
+	outfile: "/home/carlos/Obsidian_vaults/playground/.obsidian/plugins/sample-plugin/main.js",
 });
 
 if (prod) {
