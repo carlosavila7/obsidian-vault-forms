@@ -1,19 +1,15 @@
-import {
-	FormField,
-	formFieldExamples,
-	personalFinanceReportExample,
-} from "form";
-import { Form } from "form-field.factory";
+import { formFieldExamples, personalFinanceReportExample } from "_examples";
 import {
 	App,
 	Modal,
-	Notice,
 	Plugin,
 	PluginSettingTab,
 	Setting,
 } from "obsidian";
+import { Form } from "src/form";
+import { FormField } from "src/form-field/form-field.constants";
 
-// Remember to rename these classes and interfaces!
+// TODO: rename these classes and interfaces!
 
 interface MyPluginSettings {
 	mySetting: string;
