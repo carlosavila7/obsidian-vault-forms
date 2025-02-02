@@ -147,7 +147,7 @@ export abstract class FormFieldFactory {
 
 		if (!expressionToEvaluate) return prefix;
 
-		const parsedExpression = await this.parseExpressionContext(
+		const parsedExpression = await this.parseExpression(
 			expressionToEvaluate,
 			expressionContext
 		);
@@ -184,7 +184,7 @@ export abstract class FormFieldFactory {
 		return [prefix, expressionToEvaluate ?? "", sufix];
 	}
 
-	protected async parseExpressionContext(
+	protected async parseExpression(
 		expression: string,
 		expressionContext?: FormFieldFactory[]
 	): Promise<string> {

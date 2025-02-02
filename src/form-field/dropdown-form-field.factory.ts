@@ -1,7 +1,10 @@
 import { BaseFormField, FormFieldFactory } from "./form-field.factory";
 import { App, Notice, Setting } from "obsidian";
 import { fromArrayToRecord } from "utils";
-import { FORM_FIELD_ELEMENT_TYPE, FORM_FIELD_STATE } from "./form-field.constants";
+import {
+	FORM_FIELD_ELEMENT_TYPE,
+	FORM_FIELD_STATE,
+} from "./form-field.constants";
 
 class DropdownOptions {
 	value?: string[];
@@ -39,7 +42,7 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 			);
 
 		this.assignFormFieldAttributes(setting);
-
+		this.hideFormField(false);
 		return setting;
 	}
 
@@ -73,23 +76,12 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 		)
 			return;
 
-		const parsedExpression = await this.parseExpressionContext(
+		const options = await this.evaluateExpression<string[]>(
 			expressionToEvaluate,
 			this.optionExpressionContext
 		);
 
-		try {
-			const newOptions: string[] = new Function(
-				`return ${parsedExpression};`
-			)();
-
-			this.addNewOptions.bind(this)(newOptions, updatedBy, false, true);
-		} catch (error) {
-			new Notice(
-				`error on evaluating ${this.formField.className} option expression`
-			);
-			console.error(error);
-		}
+		this.addNewOptions(options, updatedBy, false, true);
 	}
 
 	protected async assignValue(
