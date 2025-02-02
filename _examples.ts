@@ -1,4 +1,62 @@
-import { FORM_FIELD_ELEMENT_TYPE, FormField } from "src/form-field/form-field.constants";
+import {
+	FORM_FIELD_ELEMENT_TYPE,
+	FormField,
+} from "src/form-field/form-field.constants";
+
+export const hideExpressionExample: FormField[] = [
+	{
+		type: FORM_FIELD_ELEMENT_TYPE.DROPDOWN,
+		name: "Type",
+		className: "type",
+		content: {},
+		options: { value: ["text", "date", "time", "number", "dropdown"] },
+	},
+	{
+		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
+		name: "Name",
+		className: "name",
+		content: {},
+	},
+	{
+		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
+		name: "Class name",
+		className: "class-name",
+		content: {
+			expression: "{{$$.name.toLowerCase().replaceAll(' ', '-')}}",
+		},
+	},
+	{
+		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
+		name: "Description",
+		description: "optional",
+		className: "description",
+		content: {},
+	},
+
+	{
+		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
+		name: "Placeholder",
+		description: "optional",
+		className: "placeholder",
+		content: {},
+	},
+	{
+		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
+		name: "Default Value",
+		description: "Involve in {{}} to write expression",
+		className: "default-value",
+		content: {},
+	},
+	{
+		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
+		name: "Options",
+		description: "Array of options",
+		placeholder: "['itemA', 'itemB']",
+		className: "options",
+		hideExpression: "{{$$.type !== 'dropdown'}}",
+		content: {},
+	},
+];
 
 export const personalFinanceReportExample: FormField[] = [
 	{
@@ -6,6 +64,7 @@ export const personalFinanceReportExample: FormField[] = [
 		name: "Date",
 		description: "Enter expense date",
 		className: "date",
+		// hideExpression: "true",
 		content: { expression: '{{new Date().toISOString().split("T")[0]}}' },
 	},
 	{
@@ -24,6 +83,7 @@ export const personalFinanceReportExample: FormField[] = [
 		className: "category",
 		description: "Select expense category",
 		content: {},
+		// hideExpression: "true",
 		options: { expression: "{{%%expenses-dictionary.md%%.categories}}" },
 	},
 	{
@@ -41,7 +101,6 @@ export const personalFinanceReportExample: FormField[] = [
 		name: "Cost",
 		className: "cost",
 		description: "Enter how much it cost",
-		placeholder: '0.00',
 		content: {},
 	},
 	{
@@ -49,6 +108,7 @@ export const personalFinanceReportExample: FormField[] = [
 		name: "Origin",
 		description: "Select expense payment origin",
 		className: "origin",
+		hideExpression: "$$.cost === 10",
 		content: {},
 		options: { expression: "{{%%expenses-dictionary.md%%.origin}}" },
 	},
@@ -67,7 +127,7 @@ export const personalFinanceReportExample: FormField[] = [
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
 		name: "Bougth at",
 		description: "Enter where it was spent",
-		className: 'bought-at',
+		className: "bought-at",
 		placeholder: "Seller`s name",
 		content: {},
 		options: { expression: "{{%%expenses-dictionary.md%%.city}}" },
@@ -83,7 +143,7 @@ export const personalFinanceReportExample: FormField[] = [
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
 		name: "Description",
-		description: 'Enter expense description',
+		description: "Enter expense description",
 		placeholder: "Expense description",
 		className: "description",
 		content: {},
@@ -92,7 +152,7 @@ export const personalFinanceReportExample: FormField[] = [
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
 		name: "Grouping Tag",
 		description: "Add tag to semantic grouping",
-		placeholder: '#semanticTag',
+		placeholder: "#semanticTag",
 		className: "grouping-tag",
 		content: {},
 	},

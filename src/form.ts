@@ -1,8 +1,14 @@
 import { getClassNamesFromExpression } from "utils";
-import { BaseFormField, FormFieldFactory } from "./form-field/form-field.factory";
+import {
+	BaseFormField,
+	FormFieldFactory,
+} from "./form-field/form-field.factory";
 import { TimeFormFieldFactory } from "./form-field/time-form-field.factory";
 import { TextFormFieldFactory } from "./form-field/text-form-field.factory";
-import { DropdownFormField, DropdownFormFieldFactory } from "./form-field/dropdown-form-field.factory";
+import {
+	DropdownFormField,
+	DropdownFormFieldFactory,
+} from "./form-field/dropdown-form-field.factory";
 import { App } from "obsidian";
 import { FORM_FIELD_ELEMENT_TYPE } from "./form-field/form-field.constants";
 
@@ -30,6 +36,9 @@ export class Form {
 				expressionContext: this.getExpressionContext(
 					formField.content?.expression
 				),
+				hideExpressionContext: this.getExpressionContext(
+					formField?.hideExpression
+				),
 			};
 
 			switch (formField.type) {
@@ -46,7 +55,8 @@ export class Form {
 					);
 					break;
 				case FORM_FIELD_ELEMENT_TYPE.DROPDOWN:
-					const dropDownField = factoryParams.formField as DropdownFormField;
+					const dropDownField =
+						factoryParams.formField as DropdownFormField;
 					this.formFieldFactories.push(
 						new DropdownFormFieldFactory({
 							optionExpressionContext: this.getExpressionContext(
@@ -56,7 +66,7 @@ export class Form {
 							formField: dropDownField,
 							app: factoryParams.app,
 							contentEl: factoryParams.contentEl,
-							expressionContext: factoryParams.expressionContext
+							expressionContext: factoryParams.expressionContext,
 						})
 					);
 					break;
@@ -84,7 +94,10 @@ export class Form {
 				) ||
 				(
 					factory.formField as DropdownFormField
-				).options?.expression?.includes(`$$.${fieldClassName}`)
+				).options?.expression?.includes(`$$.${fieldClassName}`) ||
+				factory.formField.hideExpression?.includes(
+					`$$.${fieldClassName}`
+				)
 		);
 	}
 

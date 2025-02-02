@@ -1,6 +1,9 @@
 import { App, Notice, Setting } from "obsidian";
 import { getClassNamesFromExpression, getFilePathsFromExpression } from "utils";
-import { FORM_FIELD_ELEMENT_TYPE, FORM_FIELD_STATE } from "./form-field.constants";
+import {
+	FORM_FIELD_ELEMENT_TYPE,
+	FORM_FIELD_STATE,
+} from "./form-field.constants";
 
 class FormFieldContent {
 	expression?: string;
@@ -16,6 +19,7 @@ export class BaseFormField {
 	placeholder?: string;
 	content: FormFieldContent;
 	setting?: Setting;
+	hideExpression?: string;
 }
 
 export abstract class FormFieldFactory {
@@ -24,6 +28,7 @@ export abstract class FormFieldFactory {
 	protected readonly app: App;
 
 	protected readonly expressionContext?: FormFieldFactory[];
+	protected readonly hideExpressionContext?: FormFieldFactory[];
 	protected dependentFields: FormFieldFactory[];
 
 	constructor(params: {
@@ -31,11 +36,13 @@ export abstract class FormFieldFactory {
 		app: App;
 		formField: BaseFormField;
 		expressionContext?: FormFieldFactory[];
+		hideExpressionContext?: FormFieldFactory[];
 	}) {
 		this.contentEl = params.contentEl;
 		this.app = params.app;
 		this.formField = params.formField;
 		this.expressionContext = params?.expressionContext;
+		this.hideExpressionContext = params?.hideExpressionContext;
 
 		this.formField.state = FORM_FIELD_STATE.CREATED;
 	}
@@ -59,7 +66,12 @@ export abstract class FormFieldFactory {
 	): Promise<void> {
 		this.setting = this.getSetting();
 		await this.assignDefaultValue();
-
+		this.hideFormField(
+			await this.evaluateExpression<boolean>(
+				this.formField.hideExpression,
+				this.hideExpressionContext
+			)
+		);
 		this.dependents = dependents;
 		this.formField.state = FORM_FIELD_STATE.INITIALIZED;
 	}
@@ -75,7 +87,12 @@ export abstract class FormFieldFactory {
 		new Notice(`${this.formField.className} changed: ${value}`);
 
 		await this.assignValue(value, updatedBy);
-
+		this.hideFormField(
+			await this.evaluateExpression<boolean>(
+				this.formField.hideExpression,
+				this.hideExpressionContext
+			)
+		);
 		await Promise.all(
 			this.dependentFields?.map((dependent) =>
 				dependent.updateField(undefined, this.formField.className)
@@ -116,16 +133,17 @@ export abstract class FormFieldFactory {
 	protected getFormFieldHtmlPath(formField = this.formField): string {
 		return `div.${formField.className} > div.setting-item-control > input`;
 	}
-
-	protected async evaluateExpression(
+	
+	protected async evaluateExpression<T>(
 		expression?: string,
 		expressionContext?: FormFieldFactory[]
-	): Promise<string> {
-		if (!this.formField.content.expression) return "";
+	): Promise<T | any> {
+		if (!expression) return "";
 
-		const [prefix, expressionToEvaluate, sufix] = expression
-			? this.splitExpression(expression)
-			: ["", "", ""];
+		const [prefix, expressionToEvaluate, sufix] =
+			expression.includes("{{") && expression.includes("}}")
+				? this.splitExpression(expression)
+				: ["", expression, ""];
 
 		if (!expressionToEvaluate) return prefix;
 
@@ -135,15 +153,17 @@ export abstract class FormFieldFactory {
 		);
 
 		try {
-			const expressionResult = new Function(
+			const expressionResult: T = new Function(
 				`return ${parsedExpression};`
 			)();
-
-			return `${prefix}${expressionResult}${sufix ?? ""}`;
+			return prefix
+				? `${prefix}${expressionResult}${sufix ?? ""}`
+				: expressionResult;
 		} catch (error) {
 			new Notice(
 				`Error on evaluating ${this.formField.className} expression`
 			);
+			console.error(expressionToEvaluate);
 			console.error(error);
 
 			return `${prefix}${sufix ?? ""}`;
@@ -168,7 +188,10 @@ export abstract class FormFieldFactory {
 		expression: string,
 		expressionContext?: FormFieldFactory[]
 	): Promise<string> {
-		const formFieldClassNames = getClassNamesFromExpression(expression);
+		//#region parse expression context
+		const formFieldClassNames = expressionContext
+			? getClassNamesFromExpression(expression)
+			: [];
 
 		formFieldClassNames.forEach((formFieldClassName) => {
 			const formField = expressionContext?.find(
@@ -191,7 +214,9 @@ export abstract class FormFieldFactory {
 
 			expression = expression.replace(classNameMatcher, valueTeReplace);
 		});
+		//#endregion
 
+		//#region parse file content
 		const filePaths = getFilePathsFromExpression(expression);
 
 		await Promise.all(
@@ -224,9 +249,23 @@ export abstract class FormFieldFactory {
 				);
 			})
 		);
+		//#endregion
 
 		const expressionContentMatcher = new RegExp(/{{(.*)}}/);
 
 		return expressionContentMatcher.exec(expression)?.at(-1) ?? "";
+	}
+
+	protected hideFormField(hide: boolean): void {
+		const fieldEl = this.contentEl.querySelector(
+			this.getFormFieldHtmlPath()
+		);
+
+		const displayType = hide ? "none" : "";
+
+		fieldEl?.parentElement?.parentElement?.setAttr(
+			"style",
+			`display:${displayType}`
+		);
 	}
 }
