@@ -20,6 +20,8 @@ export class BaseFormField {
 	content: FormFieldContent;
 	setting?: Setting;
 	hideExpression?: string;
+	required?: boolean;
+	bypassValueExpressionEvaluation?: boolean;
 }
 
 export abstract class FormFieldFactory {
@@ -37,6 +39,7 @@ export abstract class FormFieldFactory {
 		formField: BaseFormField;
 		expressionContext?: FormFieldFactory[];
 		hideExpressionContext?: FormFieldFactory[];
+		bypassExpressionEvaluation?: boolean;
 	}) {
 		this.contentEl = params.contentEl;
 		this.app = params.app;
@@ -104,16 +107,17 @@ export abstract class FormFieldFactory {
 		value?: string,
 		updatedBy?: string
 	): Promise<void> {
-		const valueToAssing = value
-			? value
-			: await this.evaluateExpression(
-					this.formField.content?.expression,
-					this.expressionContext
-			  );
+		if (!value)
+			value = this.formField.bypassValueExpressionEvaluation
+				? this.formField.content.expression
+				: await this.evaluateExpression(
+						this.formField.content?.expression,
+						this.expressionContext
+				  );
 
-		if (valueToAssing === this.formField.content.value) return;
+		if (value === this.formField.content.value) return;
 
-		this.value = valueToAssing;
+		this.value = value ?? "";
 	}
 
 	protected assignFormFieldAttributes(setting: Setting): void {
@@ -133,7 +137,7 @@ export abstract class FormFieldFactory {
 	protected getFormFieldHtmlPath(formField = this.formField): string {
 		return `div.${formField.className} > div.setting-item-control > input`;
 	}
-	
+
 	protected async evaluateExpression<T>(
 		expression?: string,
 		expressionContext?: FormFieldFactory[]
@@ -143,7 +147,7 @@ export abstract class FormFieldFactory {
 		const [prefix, expressionToEvaluate, sufix] =
 			expression.includes("{{") && expression.includes("}}")
 				? this.splitExpression(expression)
-				: ["", expression, ""];
+				: [expression, "", ""];
 
 		if (!expressionToEvaluate) return prefix;
 
@@ -176,7 +180,7 @@ export abstract class FormFieldFactory {
 
 		const expressionMatcher = new RegExp(/{{(.*)}}/);
 
-		const expressionToEvaluate = expressionMatcher.exec(expression)?.at(0);
+		const expressionToEvaluate = expressionMatcher.exec(expression)?.at(-1);
 
 		const prefix = expression.split("{{")[0];
 		const sufix = expression.split("}}")[1];
@@ -251,9 +255,7 @@ export abstract class FormFieldFactory {
 		);
 		//#endregion
 
-		const expressionContentMatcher = new RegExp(/{{(.*)}}/);
-
-		return expressionContentMatcher.exec(expression)?.at(-1) ?? "";
+		return expression;
 	}
 
 	protected hideFormField(hide: boolean): void {

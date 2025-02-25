@@ -18,6 +18,7 @@ export class TextFormFieldFactory extends FormFieldFactory {
 		app: App;
 		formField: TextFormFieldField;
 		expressionContext: FormFieldFactory[];
+		bypassExpressionEvaluation?: boolean;
 	}) {
 		super(params);
 	}

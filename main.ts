@@ -1,23 +1,90 @@
-import { formFieldExamples, personalFinanceReportExample } from "_examples";
-import {
-	App,
-	Modal,
-	Plugin,
-	PluginSettingTab,
-	Setting,
-} from "obsidian";
-import { Form } from "src/form";
-import { FormField } from "src/form-field/form-field.constants";
-
-// TODO: rename these classes and interfaces!
+import { hideExpressionExample } from "_examples";
+import { Notice, Plugin, PluginSettingTab, Setting } from "obsidian";
+import { Form, ICreateForm } from "src/form";
+import { CreateFormModal } from "src/settings/create-form-field";
 
 interface MyPluginSettings {
-	mySetting: string;
+	forms: ICreateForm[];
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: "default",
-};
+class mySettingsTab extends PluginSettingTab {
+	plugin: MyPlugin;
+	settings: MyPluginSettings;
+
+	constructor(plugin: MyPlugin) {
+		super(plugin.app, plugin);
+		this.plugin = plugin;
+
+		this.plugin.loadSettings();
+	}
+
+	display(): void {
+		const { containerEl } = this;
+		containerEl.empty();
+
+		new Setting(containerEl)
+			.setName("Create new form")
+			.setDesc("Click here to create a new form")
+			.addButton((btn) =>
+				btn
+					.setButtonText("New form")
+					.onClick(() =>
+						new CreateFormModal(
+							this.app,
+							this.onCreateFormSubmit.bind(this)
+						).open()
+					)
+			);
+
+		containerEl.createEl("h2", { text: "Forms" });
+
+		this.plugin.settings.forms.forEach((form) => {
+			new Setting(containerEl)
+				.setName(form.title)
+				.setDesc(form.path)
+				.addExtraButton((extraButton) =>
+					extraButton.setIcon("gear").onClick(() => {
+						new Notice("extra btn");
+					})
+				)
+				.addButton((button) =>
+					button
+						.setButtonText("delete")
+						.onClick(() => {
+							new Notice("delete btn");
+						})
+						.setWarning()
+				)
+				.addButton((button) =>
+					button.setButtonText("Open Modal").onClick(() => {
+						new Notice("main btn");
+					})
+				);
+		});
+	}
+
+	async onCreateFormSubmit(createdForm: ICreateForm) {
+		this.plugin.settings.forms = this.plugin.settings.forms?.length
+			? [createdForm, ...this.plugin.settings.forms]
+			: [createdForm];
+		this.plugin.saveSettings();
+		new Notice("CreateForm submitted");
+		console.log(this.plugin.settings);
+
+		const commandId = `${createdForm.title?.replace(
+			/\s/gm,
+			"-"
+		)}-${new Date().getTime().toString(36)}`;
+
+		this.plugin.addCommand({
+			id: commandId,
+			name: createdForm.title,
+			callback: () => {
+				new Form(this.app, createdForm).open();
+			},
+		});
+	}
+}
 
 export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
@@ -26,15 +93,18 @@ export default class MyPlugin extends Plugin {
 		await this.saveSettings();
 		await this.loadSettings();
 
-		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon(
-			"wallet",
-			"Report expense",
-			(evt: MouseEvent) => {
-				// Called when the user clicks the icon.
-				new SampleModal(this.app, personalFinanceReportExample).open();
-			}
-		);
+		const formParams: ICreateForm = {
+			formFields: hideExpressionExample,
+			title: "This is a form field",
+			path: "expenses/",
+			submitLabel: "Submit ribbon form",
+		};
+
+		this.addRibbonIcon("wallet", formParams.title, () => {
+			const form = new Form(this.app, formParams);
+		});
+
+		this.addSettingTab(new mySettingsTab(this));
 	}
 
 	onunload() {}
@@ -42,79 +112,12 @@ export default class MyPlugin extends Plugin {
 	async loadSettings() {
 		this.settings = Object.assign(
 			{},
-			DEFAULT_SETTINGS,
+			// DEFAULT_SETTINGS,
 			await this.loadData()
 		);
 	}
 
 	async saveSettings() {
-		await this.saveData(formFieldExamples);
-	}
-}
-
-class SampleModal extends Modal {
-	public app: App;
-	private form: Form;
-
-	constructor(app: App, formFields: FormField[]) {
-		super(app);
-
-		this.app = app;
-		this.form = new Form(this.contentEl, this.app, formFields);
-	}
-
-	async onOpen() {
-		const { contentEl } = this;
-		contentEl.createEl("h2", { text: "Report expense" });
-
-		await this.form.createFormFields();
-
-		new Setting(this.contentEl).addButton((button) =>
-			button
-				.setButtonText("Save expense")
-				.setCta()
-				.onClick(() => {
-					const frontmatterProps = this.form.getDataAsFrontmatter();
-					const formInputTimestamp = this.form.getTimestampNamingStrategy();
-					this.close();
-
-					this.app.vault.create(
-						`expenses/${formInputTimestamp}.md`,
-						frontmatterProps
-					);
-				})
-		);
-	}
-
-	onClose() {
-		this.form.setFormDataNull();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
-
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const { containerEl } = this;
-
-		containerEl.empty();
-
-		new Setting(containerEl)
-			.setName("Setting #1")
-			.setDesc("It's a secret")
-			.addText((text) =>
-				text
-					.setPlaceholder("Enter your secret")
-					.setValue(this.plugin.settings.mySetting)
-					.onChange(async (value) => {
-						this.plugin.settings.mySetting = value;
-						await this.plugin.saveSettings();
-					})
-			);
+		await this.saveData(this.settings);
 	}
 }

@@ -1,4 +1,4 @@
-import { getClassNamesFromExpression } from "utils";
+import { getClassNamesFromExpression, getDataAsFrontmatter } from "utils";
 import {
 	BaseFormField,
 	FormFieldFactory,
@@ -9,25 +9,88 @@ import {
 	DropdownFormField,
 	DropdownFormFieldFactory,
 } from "./form-field/dropdown-form-field.factory";
-import { App } from "obsidian";
-import { FORM_FIELD_ELEMENT_TYPE } from "./form-field/form-field.constants";
+import { App, Modal, Notice, Setting } from "obsidian";
+import {
+	FORM_FIELD_ELEMENT_TYPE,
+	FormField,
+} from "./form-field/form-field.constants";
 
-export class Form {
-	private contentEl: HTMLElement;
-	private app: App;
+export interface IFieldData {
+	className: string;
+	fieldType: FORM_FIELD_ELEMENT_TYPE;
+	fieldValue?: string;
+}
+
+export interface ICreateForm {
+	title: string;
+	formFields: FormField[];
+	path: string;
+	onSubmit?: (data: any) => void;
+	submitLabel?: string;
+}
+
+export class Form extends Modal {
+	contentEl: HTMLElement;
+	app: App;
+
+	private title: string;
+	private submitLabel: string;
+	private onSubmit: (data: any) => void;
+	private path: string;
 
 	private formFieldFactories: FormFieldFactory[] = [];
 	private formFields: BaseFormField[];
 
-	constructor(contentEl: HTMLElement, app: App, formFields: BaseFormField[]) {
-		this.contentEl = contentEl;
+	constructor(app: App, params: ICreateForm) {
+		super(app);
+
 		this.app = app;
-		this.formFields = formFields;
+
+		this.formFields = params.formFields;
+		this.title = params.title;
+		this.submitLabel = params.submitLabel ?? "Submit";
+		this.onSubmit = params.onSubmit ?? this.defaultOnSubmit;
+		this.path = params.path;
+
+		this.open();
+	}
+
+	onClose(): void {
+		this.setFormDataNull();
+	}
+
+	async onOpen(): Promise<void> {
+		this.contentEl.createEl("h2", { text: this.title });
+		await this.createFormFields();
+
+		new Setting(this.contentEl).addButton((button) =>
+			button
+				.setButtonText(this.submitLabel)
+				.setCta()
+				.onClick(() => {
+					const requiredUnfilledField =
+						this.getRequiredUnfilledField();
+					if (!requiredUnfilledField) {
+						this.onSubmit(this.getData());
+						this.close();
+					} else
+						new Notice(
+							`Fill in the ${requiredUnfilledField.name} field before submitting`
+						);
+				})
+		);
+	}
+
+	private getRequiredUnfilledField(): FormField | undefined {
+		const requiredFields = this.formFieldFactories
+			.filter((factory) => factory.formField.required)
+			.map((factory) => factory.formField);
+
+		return requiredFields.find((field) => !field.content.value?.trim());
 	}
 
 	public async createFormFields(): Promise<void> {
 		this.formFields.forEach((formField) => {
-			if (formField.setting) formField.setting.clear();
 
 			const factoryParams = {
 				formField,
@@ -120,19 +183,17 @@ export class Form {
 		return expressionContext;
 	}
 
-	public getDataAsFrontmatter(): string {
-		let frontmatterString = "";
-		this.formFieldFactories.map((factory) => {
-			const stringValue =
-				factory.formField.type === FORM_FIELD_ELEMENT_TYPE.DROPDOWN ||
-				factory.formField.type === FORM_FIELD_ELEMENT_TYPE.TEXT
-					? `"${factory.formField.content?.value ?? ""}"`
-					: factory.formField.content?.value;
+	public getData(): IFieldData[] {
+		const data: IFieldData[] = [];
 
-			frontmatterString += `${factory.formField.className}: ${stringValue}\n`;
-		});
-
-		return `---\n${frontmatterString}---`;
+		this.formFieldFactories.map((factory) =>
+			data.push({
+				className: factory.formField.className,
+				fieldType: factory.formField.type,
+				fieldValue: factory.formField.content.value,
+			})
+		);
+		return data;
 	}
 
 	public getTimestampNamingStrategy(): string {
@@ -154,4 +215,11 @@ export class Form {
 			(factory) => (factory.formField.content.value = undefined)
 		);
 	}
+
+	private defaultOnSubmit = (data: IFieldData[]) => {
+		const frontmatterData = getDataAsFrontmatter(data);
+		const fileName = new Date().getTime().toString(36);
+		
+		this.app.vault.create(`${this.path}${fileName}.md`, frontmatterData);
+	};
 }
