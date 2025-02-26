@@ -107,7 +107,10 @@ export abstract class FormFieldFactory {
 		value?: string,
 		updatedBy?: string
 	): Promise<void> {
-		if (!value)
+		if (
+			(!value && updatedBy) ||
+			(!value && this.formField.state === FORM_FIELD_STATE.CREATED)
+		)
 			value = this.formField.bypassValueExpressionEvaluation
 				? this.formField.content.expression
 				: await this.evaluateExpression(
