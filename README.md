@@ -5,9 +5,9 @@
     - get form result
 - [ ] Build interface to configure forms
     - [X] Create form
-    - [ ] List created forms
+    - [X] List created forms
         - Add togle to activate forms according to the toogle state
-    - [ ] Delete form
+    - [X] Delete form
     - [ ] Update form
         - Try to use the same modal class to create form. In this case, the form is rendered filled with the info from the form that is being updated.
 

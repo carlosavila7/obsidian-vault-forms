@@ -83,8 +83,8 @@ const createForm: FormField[] = [
 ];
 
 export class CreateFormModal extends Modal {
-	SUBMIT_CLASS = "submit-form-footer";
-	FIELDS_SECTION = "fields-section";
+	private readonly SUBMIT_CLASS = "submit-form-footer";
+	private readonly FIELDS_SECTION = "fields-section";
 
 	form: ICreateForm;
 	onSubmit: (createdForm: ICreateForm) => void;
