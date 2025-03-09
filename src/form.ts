@@ -21,7 +21,7 @@ export interface IFieldData {
 	fieldValue?: string;
 }
 
-export interface ICreateForm {
+export interface IForm {
 	title: string;
 	formFields: FormField[];
 	path: string;
@@ -41,7 +41,7 @@ export class Form extends Modal {
 	private formFieldFactories: FormFieldFactory[] = [];
 	private formFields: BaseFormField[];
 
-	constructor(app: App, params: ICreateForm) {
+	constructor(app: App, params: IForm) {
 		super(app);
 
 		this.app = app;

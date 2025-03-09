@@ -1,10 +1,10 @@
 import { hideExpressionExample } from "_examples";
 import { Notice, Plugin, PluginSettingTab, Setting } from "obsidian";
-import { Form, ICreateForm } from "src/form";
+import { Form, IForm } from "src/form";
 import { ConfirmationModal } from "src/settings/confirmation-modal";
-import { CreateFormModal } from "src/settings/create-form-field";
+import { HandleFormModal } from "src/settings/handle-form-modal";
 
-interface FormBo extends ICreateForm {
+interface FormBo extends IForm {
 	id: string;
 	active: boolean;
 }
@@ -34,14 +34,13 @@ class mySettingsTab extends PluginSettingTab {
 			.setName("Create new form")
 			.setDesc("Click here to create a new form")
 			.addButton((btn) =>
-				btn
-					.setButtonText("Create form")
-					.onClick(() =>
-						new CreateFormModal(
-							this.app,
-							this.onCreateFormSubmit.bind(this)
-						).open()
-					)
+				btn.setButtonText("Create form").onClick(() =>
+					new HandleFormModal({
+						app: this.app,
+						onSubmit: this.onCreateFormSubmit.bind(this),
+						type: "Create",
+					}).open()
+				)
 			);
 
 		containerEl.createEl("h2", { text: "Forms" });
@@ -49,7 +48,7 @@ class mySettingsTab extends PluginSettingTab {
 		this.renderFormList();
 	}
 
-	async onCreateFormSubmit(createdForm: ICreateForm) {
+	async onCreateFormSubmit(createdForm: IForm) {
 		const formId = `${createdForm.title?.replace(/\s/gm, "-")}-${new Date()
 			.getTime()
 			.toString(36)}`;
@@ -85,7 +84,15 @@ class mySettingsTab extends PluginSettingTab {
 			.setClass(this.FORM_LIST_ITEM_CLASS)
 			.addExtraButton((extraButton) =>
 				extraButton.setIcon("gear").onClick(() => {
-					new Notice("extra btn");
+					const updateForm = new HandleFormModal({
+						app: this.app,
+						onSubmit: this.getUpdateFormCallback(form.id).bind(
+							this
+						),
+						formData: form,
+						type: "Update",
+					});
+					updateForm.open();
 				})
 			)
 			.addExtraButton((extraButton) =>
@@ -106,6 +113,23 @@ class mySettingsTab extends PluginSettingTab {
 					.setValue(form.active)
 					.onChange(this.getToogleFormActiveCallback(form.id));
 			});
+	}
+
+	getUpdateFormCallback(formId: string) {
+		return async (updatedForm: IForm) => {
+			this.plugin.settings.forms = this.plugin.settings.forms.map(
+				(form) => {
+					if (form.id === formId) {
+						form = Object.assign(form, updatedForm);
+					}
+					return form;
+				}
+			);
+
+			await this.plugin.saveSettings();
+
+			this.renderFormList();
+		};
 	}
 
 	private getToogleFormActiveCallback(formId: string) {
@@ -154,7 +178,7 @@ export default class MyPlugin extends Plugin {
 		await this.saveSettings();
 		await this.loadSettings();
 
-		const formParams: ICreateForm = {
+		const formParams: IForm = {
 			formFields: hideExpressionExample,
 			title: "This is a form field",
 			path: "expenses/",

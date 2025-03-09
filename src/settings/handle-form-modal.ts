@@ -1,114 +1,54 @@
 import { App, Modal, Notice, Setting } from "obsidian";
-import { Form, ICreateForm, IFieldData } from "src/form";
+import { Form, IForm, IFieldData } from "src/form";
 import { DropdownFormField } from "src/form-field/dropdown-form-field.factory";
-import {
-	FORM_FIELD_ELEMENT_TYPE,
-	FormField,
-} from "src/form-field/form-field.constants";
+import { FormField } from "src/form-field/form-field.constants";
 import { fromFormDataToFormField } from "utils";
 import { ConfirmationModal } from "./confirmation-modal";
+import { handleFormField } from "./handle-form-modal.constants";
 
-const createForm: FormField[] = [
-	{
-		type: FORM_FIELD_ELEMENT_TYPE.DROPDOWN,
-		name: "Type",
-		className: "field-type",
-		content: {},
-		options: { value: ["text", "date", "time", "number", "dropdown"] },
-	},
-	{
-		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
-		name: "Name",
-		description: "Enter the field name",
-		className: "field-name",
-		required: true,
-		content: {},
-	},
-	{
-		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
-		name: "Class name",
-		description: "Field identifier",
-		className: "field-class-name",
-		content: {
-			expression:
-				"field-{{$$.field-name.toLowerCase().replaceAll(' ', '-')}}",
-		},
-	},
-	{
-		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
-		name: "Description",
-		description: "Optional - Enter field description",
-		className: "field-description",
-		content: {},
-	},
-	{
-		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
-		name: "Placeholder",
-		description: "Optional - Enter field placeholder",
-		className: "field-placeholder",
-		content: {},
-	},
-	{
-		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
-		name: "Hide Expression",
-		description: "Optional - Enter expression to hide field if true",
-		className: "field-hide-expression",
-		bypassValueExpressionEvaluation: true,
-		placeholder: "{{field-foo === 'bar'}}",
-		content: {},
-	},
-	{
-		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
-		name: "Required",
-		description: "To be replaced by toogle element. 1 for true, 0 false",
-		className: "field-required",
-		content: { expression: "1" },
-	},
-	{
-		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
-		name: "Default Value",
-		description: "Optional - Involve in {{}} to write expression",
-		className: "field-default-value",
-		bypassValueExpressionEvaluation: true,
-		content: {},
-	},
-	{
-		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
-		name: "Options",
-		description: "Array of options - Involve in {{}} to write expression",
-		placeholder: "{{ ['itemA', 'itemB']}}",
-		className: "field-dropdown-options",
-		hideExpression: "{{$$.field-type !== 'dropdown'}}",
-		content: {},
-	},
-];
+interface HandleFormModalParams {
+	app: App;
+	type: "Create" | "Update";
+	onSubmit: (createdForm: IForm) => void;
+	formData?: IForm;
+}
 
-export class CreateFormModal extends Modal {
+export class HandleFormModal extends Modal {
 	private readonly SUBMIT_CLASS = "submit-form-footer";
 	private readonly FIELDS_SECTION = "fields-section";
 
-	form: ICreateForm;
-	onSubmit: (createdForm: ICreateForm) => void;
+	private form: IForm;
+	private type: "Create" | "Update";
 
-	constructor(app: App, onSubmit: (createdForm: ICreateForm) => void) {
-		super(app);
-		this.app = app;
-		this.onSubmit = onSubmit;
+	onSubmit: (createdForm: IForm) => void;
 
-		this.form = {} as ICreateForm;
-		this.form["formFields"] = [];
+	constructor(params: HandleFormModalParams) {
+		super(params.app);
+		this.app = params.app;
+		this.type = params.type;
+		this.onSubmit = params.onSubmit;
+
+		if (params.formData) this.form = params.formData;
+		else {
+			this.form = {} as IForm;
+			this.form["formFields"] = [];
+		}
 	}
 
 	onOpen(): void {
 		const { contentEl } = this;
 
-		contentEl.createEl("h2", { text: "Create form" });
+		contentEl.createEl("h2", {
+			text: `${this.type} form`,
+		});
 
 		new Setting(contentEl)
 			.setName("Form name")
 			.setDesc("Insert here the form name")
 			.addText((txt) =>
-				txt.onChange((value) => (this.form["title"] = value))
+				txt
+					.setValue(this.form.title ?? "")
+					.onChange((value) => (this.form["title"] = value))
 			);
 
 		new Setting(contentEl)
@@ -116,6 +56,7 @@ export class CreateFormModal extends Modal {
 			.setDesc("Insert the path on your vault")
 			.addText((txt) =>
 				txt
+					.setValue(this.form.path ?? "")
 					.setPlaceholder("folder_inside_my_vault/")
 					.onChange((value) => (this.form["path"] = value))
 			);
@@ -125,13 +66,14 @@ export class CreateFormModal extends Modal {
 			.setDesc("Enter the button label for the submit button")
 			.addText((txt) =>
 				txt
+					.setValue(this.form.submitLabel ?? "")
 					.setPlaceholder("Submit")
 					.onChange((value) => (this.form["submitLabel"] = value))
 			);
 
 		contentEl.createEl("h3", { text: "Fields" });
 
-		this.appendSubmitSection();
+		this.refreshFieldsSection();
 	}
 
 	private removeSubmitSection() {
@@ -154,11 +96,11 @@ export class CreateFormModal extends Modal {
 				.setClass(`${this.SUBMIT_CLASS}-warn`)
 				.setDesc("Add some field to create a form");
 
-		const formParams: ICreateForm = {
-			formFields: createForm,
-			title: "Create new form field",
+		const formParams: IForm = {
+			formFields: handleFormField,
+			title: `${this.type} new form field`,
 			onSubmit: this.addNewField.bind(this),
-			submitLabel: "Create field",
+			submitLabel: `${this.type} field`,
 			path: "",
 		};
 
@@ -172,7 +114,7 @@ export class CreateFormModal extends Modal {
 			)
 			.addButton((btn) =>
 				btn
-					.setButtonText("Create form")
+					.setButtonText(`${this.type} form`)
 					.setCta()
 					.setDisabled(isDisabled)
 					.onClick(this.handleSubmit.bind(this))
@@ -185,7 +127,7 @@ export class CreateFormModal extends Modal {
 		);
 
 		if (formFieldToUpdate) {
-			const formParams: ICreateForm = {
+			const formParams: IForm = {
 				formFields: this.getUpdateForm(formFieldToUpdate),
 				title: "Update field",
 				path: "",
@@ -252,6 +194,8 @@ export class CreateFormModal extends Modal {
 		this.removeSubmitSection();
 		this.removeFieldsSection();
 
+		console.log(this.form.formFields);
+
 		this.form.formFields.forEach((formField) => {
 			new Setting(this.contentEl)
 				.setName(formField.name)
@@ -310,7 +254,9 @@ export class CreateFormModal extends Modal {
 	}
 
 	private getUpdateForm(formField: FormField) {
-		const updateForm: FormField[] = JSON.parse(JSON.stringify(createForm));
+		const updateForm: FormField[] = JSON.parse(
+			JSON.stringify(handleFormField)
+		);
 
 		updateForm.map((field) => {
 			let valueToAssing = undefined;

@@ -3,12 +3,12 @@
 - [X] Structure form class
     - form name
     - get form result
-- [ ] Build interface to configure forms
+- [X] Build interface to configure forms
     - [X] Create form
     - [X] List created forms
         - Add togle to activate forms according to the toogle state
     - [X] Delete form
-    - [ ] Update form
+    - [X] Update form
         - Try to use the same modal class to create form. In this case, the form is rendered filled with the info from the form that is being updated.
 
 ### refactoring
