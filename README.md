@@ -16,8 +16,10 @@
 - [ ] Rethink class implementation to optimize overwritten methods
 
 ### features
- - [ ] Togle field
+ - [ ] Togle field  
+    - [ ] When implement this on the form field modal, add expression to set as not required if it has hide expression
  - [ ] Slider field
+ - [ ] Test expresson while creating/updating a form field
 
 ### bugs
 - [X] Update one field updates all fields 
