@@ -5,7 +5,8 @@ import {
 	FORM_FIELD_ELEMENT_TYPE,
 	FormField,
 } from "src/form-field/form-field.constants";
-import { fromFormDataToFormField, getDataAsFrontmatter } from "utils";
+import { fromFormDataToFormField } from "utils";
+import { ConfirmationModal } from "./confirmation-modal";
 
 const createForm: FormField[] = [
 	{
@@ -206,6 +207,7 @@ export class CreateFormModal extends Modal {
 			if (!requiredUnfilled) {
 				this.postProcessParams();
 				this.onSubmit(this.form);
+				this.close();
 			} else
 				new Notice(
 					`Fill in the ${requiredUnfilled} field before submitting`
@@ -215,7 +217,6 @@ export class CreateFormModal extends Modal {
 				`Can't create form. Class name (${duplicatedClassName}) is not unique`
 			);
 		}
-		this.close();
 	}
 
 	private addNewField(field: IFieldData[]) {
@@ -237,12 +238,14 @@ export class CreateFormModal extends Modal {
 		this.refreshFieldsSection();
 	}
 
-	private deleteField(className: string) {
-		this.form.formFields = this.form.formFields.filter(
-			(formField) => formField.className !== className
-		);
+	private getDeleteFieldCallback(className: string) {
+		return () => {
+			this.form.formFields = this.form.formFields.filter(
+				(formField) => formField.className !== className
+			);
 
-		this.refreshFieldsSection();
+			this.refreshFieldsSection();
+		};
 	}
 
 	private refreshFieldsSection() {
@@ -257,19 +260,30 @@ export class CreateFormModal extends Modal {
 				.addExtraButton((btn) =>
 					btn
 						.setIcon("pencil")
+						.setTooltip("Edit field")
 						.onClick(() =>
 							this.handleFormFieldUpdate.bind(this)(
 								formField.className
 							)
 						)
 				)
-				.addButton((btn) =>
+				.addExtraButton((btn) =>
 					btn
-						.onClick(() =>
-							this.deleteField.bind(this)(formField.className)
-						)
-						.setButtonText("delete")
-						.setWarning()
+						.setIcon("trash-2")
+						.setTooltip("Delete field")
+						.onClick(() => {
+							const confirmationModal = new ConfirmationModal({
+								app: this.app,
+								description: `Are you sure you want to delete the ${formField.name} field?`,
+								onSubmit: this.getDeleteFieldCallback(
+									formField.className
+								).bind(this),
+								submitLabel: "Delete",
+								title: "Are you sure?",
+							});
+
+							confirmationModal.open();
+						})
 				);
 		});
 
