@@ -71,7 +71,7 @@ class mySettingsTab extends PluginSettingTab {
 	private renderFormList() {
 		this.removeFieldsSection();
 
-		this.plugin.settings.forms.forEach((form) => {
+		this.plugin.settings.forms?.forEach((form) => {
 			this.createFormItemList(form);
 			if (form.active) this.plugin.addCommandForm(form);
 		});
@@ -167,7 +167,7 @@ class mySettingsTab extends PluginSettingTab {
 			`.${this.FORM_LIST_ITEM_CLASS}`
 		);
 
-		fieldEls.forEach((fieldEl) => fieldEl?.remove());
+		fieldEls?.forEach((fieldEl) => fieldEl?.remove());
 	}
 }
 
@@ -186,7 +186,7 @@ export default class MyPlugin extends Plugin {
 		};
 
 		this.addRibbonIcon("wallet", formParams.title, () => {
-			const form = new Form(this.app, formParams);
+			new Form(this.app, formParams);
 		});
 
 		this.addSettingTab(new mySettingsTab(this));
@@ -209,7 +209,7 @@ export default class MyPlugin extends Plugin {
 	}
 
 	private activateForms() {
-		this.settings.forms.forEach((form) => {
+		this.settings.forms?.forEach((form) => {
 			if (form.active) this.addCommandForm(form);
 		});
 	}
