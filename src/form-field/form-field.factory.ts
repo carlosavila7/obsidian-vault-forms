@@ -52,6 +52,8 @@ export abstract class FormFieldFactory {
 
 	protected abstract getSetting(): Setting;
 
+	protected abstract getFormFieldHtmlPath(): string;
+
 	abstract set value(valueToSet: string);
 
 	set setting(setting: Setting) {
@@ -135,10 +137,6 @@ export abstract class FormFieldFactory {
 
 		if (this.formField.description)
 			setting.setDesc(this.formField.description);
-	}
-
-	protected getFormFieldHtmlPath(formField = this.formField): string {
-		return `div.${formField.className} > div.setting-item-control > input`;
 	}
 
 	protected async evaluateExpression<T>(

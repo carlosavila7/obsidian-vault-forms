@@ -32,6 +32,10 @@ export class TextFormFieldFactory extends FormFieldFactory {
 		return setting;
 	}
 
+	protected getFormFieldHtmlPath(formField = this.formField): string {
+		return `div.${formField.className} > div.setting-item-control > input`;
+	}
+
 	set value(valueToSet: string) {
 		const fieldEl = this.contentEl.querySelector(
 			this.getFormFieldHtmlPath()
