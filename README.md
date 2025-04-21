@@ -27,3 +27,4 @@
 - [X] Update one field updates all fields 
 - [X] When deleting the content of a field that has expression, it triggers the expression to run, filling the field again.
     - Makes impossible to have the field as blank
+- [ ] Hide expression not working on dropdown fields
