@@ -1,6 +1,6 @@
 import { App, Notice, Setting } from "obsidian";
 import { BaseFormField, FormFieldFactory } from "./form-field.factory";
-import { FORM_FIELD_ELEMENT_TYPE } from "./form-field.constants";
+import { FORM_FIELD_ELEMENT_TYPE, FORM_FIELD_STATE } from "./form-field.constants";
 
 export class TextFormFieldField extends BaseFormField {
 	type = FORM_FIELD_ELEMENT_TYPE.TEXT;
@@ -34,6 +34,26 @@ export class TextFormFieldFactory extends FormFieldFactory {
 
 	protected getFormFieldHtmlPath(formField = this.formField): string {
 		return `div.${formField.className} > div.setting-item-control > input`;
+	}
+
+	protected async assignValue(
+		value?: string,
+		updatedBy?: string
+	): Promise<void> {
+		if (
+			(!value && updatedBy) ||
+			(!value && this.formField.state === FORM_FIELD_STATE.CREATED)
+		)
+			value = this.formField.bypassValueExpressionEvaluation
+				? this.formField.content.expression
+				: await this.evaluateExpression(
+					this.formField.content?.expression,
+					this.expressionContext
+				);
+
+		if (value === this.formField.content.value) return;
+
+		this.value = value ?? "";
 	}
 
 	set value(valueToSet: string) {

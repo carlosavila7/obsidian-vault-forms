@@ -54,6 +54,11 @@ export abstract class FormFieldFactory {
 
 	protected abstract getFormFieldHtmlPath(): string;
 
+	protected abstract assignValue(
+		value?: string,
+		updatedBy?: string
+	): Promise<void>;
+
 	abstract set value(valueToSet: string);
 
 	set setting(setting: Setting) {
@@ -103,26 +108,6 @@ export abstract class FormFieldFactory {
 				dependent.updateField(undefined, this.formField.className)
 			)
 		);
-	}
-
-	protected async assignValue(
-		value?: string,
-		updatedBy?: string
-	): Promise<void> {
-		if (
-			(!value && updatedBy) ||
-			(!value && this.formField.state === FORM_FIELD_STATE.CREATED)
-		)
-			value = this.formField.bypassValueExpressionEvaluation
-				? this.formField.content.expression
-				: await this.evaluateExpression(
-						this.formField.content?.expression,
-						this.expressionContext
-				  );
-
-		if (value === this.formField.content.value) return;
-
-		this.value = value ?? "";
 	}
 
 	protected assignFormFieldAttributes(setting: Setting): void {
