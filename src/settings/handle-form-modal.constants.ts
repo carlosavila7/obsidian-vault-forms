@@ -36,6 +36,7 @@ export const handleFormField: FormField[] = [
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
 		name: "Placeholder",
+		hideExpression: "{{$$.field-type === 'dropdown'}}",
 		description: "Optional - Enter field placeholder",
 		className: "field-placeholder",
 		content: {},
