@@ -13,7 +13,7 @@
 
 ### refactoring
 
-- [ ] Rethink class implementation to optimize overwritten methods
+- [X] Rethink class implementation to optimize overwritten methods
     - methods that are overwritten on children classes must be abstract on the base class
     - when making methods abstract to be implemented by children, keep the common logic on the base class
 
