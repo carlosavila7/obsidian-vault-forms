@@ -25,6 +25,7 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 		formField: DropdownFormField;
 		expressionContext: FormFieldFactory[];
 		optionExpressionContext?: FormFieldFactory[];
+		hideExpressionContext?: FormFieldFactory[];
 	}) {
 		super(params);
 		this.optionExpressionContext = params.optionExpressionContext;
@@ -93,9 +94,9 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 		const valueToAssing = value
 			? value
 			: (await this.evaluateExpression(
-					this.formField.content.expression,
-					this.expressionContext
-			  )) || Object.values(this.formField.options?.value ?? {})[0];
+				this.formField.content.expression,
+				this.expressionContext
+			)) || Object.values(this.formField.options?.value ?? {})[0];
 
 		if (
 			valueToAssing === this.formField.content.value ||
@@ -136,8 +137,8 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 		newOptions.forEach((newOption) => {
 			const postAddedOption = keepOnlyOneByUpdatedField
 				? this.contentEl?.querySelector(
-						`${formFieldHtmlPath} > option.${updatedBy}`
-				  )
+					`${formFieldHtmlPath} > option.${updatedBy}`
+				)
 				: undefined;
 
 			if (postAddedOption && keepOnlyOneByUpdatedField)

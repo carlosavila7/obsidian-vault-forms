@@ -130,6 +130,7 @@ export class Form extends Modal {
 							app: factoryParams.app,
 							contentEl: factoryParams.contentEl,
 							expressionContext: factoryParams.expressionContext,
+							hideExpressionContext: factoryParams.hideExpressionContext
 						})
 					);
 					break;
@@ -219,7 +220,7 @@ export class Form extends Modal {
 	private defaultOnSubmit = (data: IFieldData[]) => {
 		const frontmatterData = getDataAsFrontmatter(data);
 		const fileName = new Date().getTime().toString(36);
-		
+
 		this.app.vault.create(`${this.path}${fileName}.md`, frontmatterData);
 	};
 }
