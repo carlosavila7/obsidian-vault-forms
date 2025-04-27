@@ -1,5 +1,5 @@
 import { App, Notice, Setting } from "obsidian";
-import { BaseFormField, FormFieldFactory } from "./form-field.factory";
+import { BaseFormField, FormFieldFactory, FormFieldFactoryParams } from "./form-field.factory";
 import { FORM_FIELD_ELEMENT_TYPE, FORM_FIELD_STATE } from "./form-field.constants";
 
 export class TextFormFieldField extends BaseFormField {
@@ -13,13 +13,7 @@ export class TimeFormFieldField extends BaseFormField {
 }
 
 export class TextFormFieldFactory extends FormFieldFactory {
-	constructor(params: {
-		contentEl: HTMLElement;
-		app: App;
-		formField: TextFormFieldField;
-		expressionContext: FormFieldFactory[];
-		bypassExpressionEvaluation?: boolean;
-	}) {
+	constructor(params: FormFieldFactoryParams) {
 		super(params);
 	}
 

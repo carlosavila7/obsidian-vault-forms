@@ -24,6 +24,15 @@ export class BaseFormField {
 	bypassValueExpressionEvaluation?: boolean;
 }
 
+export class FormFieldFactoryParams {
+	contentEl: HTMLElement;
+	app: App;
+	formField: BaseFormField;
+	expressionContext?: FormFieldFactory[];
+	hideExpressionContext?: FormFieldFactory[];
+	bypassExpressionEvaluation?: boolean;
+}
+
 export abstract class FormFieldFactory {
 	public readonly formField: BaseFormField;
 	protected readonly contentEl: HTMLElement;
@@ -33,14 +42,7 @@ export abstract class FormFieldFactory {
 	protected readonly hideExpressionContext?: FormFieldFactory[];
 	protected dependentFields: FormFieldFactory[];
 
-	constructor(params: {
-		contentEl: HTMLElement;
-		app: App;
-		formField: BaseFormField;
-		expressionContext?: FormFieldFactory[];
-		hideExpressionContext?: FormFieldFactory[];
-		bypassExpressionEvaluation?: boolean;
-	}) {
+	constructor(params: FormFieldFactoryParams) {
 		this.contentEl = params.contentEl;
 		this.app = params.app;
 		this.formField = params.formField;

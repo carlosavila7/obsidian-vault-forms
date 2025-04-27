@@ -1,5 +1,5 @@
-import { BaseFormField, FormFieldFactory } from "./form-field.factory";
-import { App, Notice, Setting } from "obsidian";
+import { BaseFormField, FormFieldFactory, FormFieldFactoryParams } from "./form-field.factory";
+import { Notice, Setting } from "obsidian";
 import { fromArrayToRecord } from "utils";
 import {
 	FORM_FIELD_ELEMENT_TYPE,
@@ -16,17 +16,14 @@ export class DropdownFormField extends BaseFormField {
 	options: DropdownOptions;
 }
 
+export class DropdownFormFielfFactory extends FormFieldFactoryParams {
+	optionExpressionContext?: FormFieldFactory[];
+}
+
 export class DropdownFormFieldFactory extends FormFieldFactory {
 	formField: DropdownFormField;
 	optionExpressionContext?: FormFieldFactory[];
-	constructor(params: {
-		contentEl: HTMLElement;
-		app: App;
-		formField: DropdownFormField;
-		expressionContext: FormFieldFactory[];
-		optionExpressionContext?: FormFieldFactory[];
-		hideExpressionContext?: FormFieldFactory[];
-	}) {
+	constructor(params: DropdownFormFielfFactory) {
 		super(params);
 		this.optionExpressionContext = params.optionExpressionContext;
 	}
