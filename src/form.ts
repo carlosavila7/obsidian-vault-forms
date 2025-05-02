@@ -14,6 +14,7 @@ import {
 	FORM_FIELD_ELEMENT_TYPE,
 	FormField,
 } from "./form-field/form-field.constants";
+import { ToggleFormFieldFactory } from "./form-field/toggle-form-field.factory";
 
 export interface IFieldData {
 	className: string;
@@ -90,8 +91,7 @@ export class Form extends Modal {
 	}
 
 	public async createFormFields(): Promise<void> {
-		this.formFields.forEach((formField) => {
-
+		this.formFields.forEach((formField) => {			
 			const factoryParams = {
 				formField,
 				app: this.app,
@@ -130,10 +130,15 @@ export class Form extends Modal {
 							app: factoryParams.app,
 							contentEl: factoryParams.contentEl,
 							expressionContext: factoryParams.expressionContext,
-							hideExpressionContext: factoryParams.hideExpressionContext
+							hideExpressionContext:
+								factoryParams.hideExpressionContext,
 						})
 					);
 					break;
+				case FORM_FIELD_ELEMENT_TYPE.TOGGLE:
+					this.formFieldFactories.push(
+						new ToggleFormFieldFactory(factoryParams)
+					);
 			}
 		});
 

@@ -4,6 +4,7 @@ import {
 	TextFormFieldField,
 	TimeFormFieldField,
 } from "./text-form-field.factory";
+import { ToggleFormField } from "./toggle-form-field.factory";
 
 export enum FORM_FIELD_ELEMENT_TYPE {
 	TEXT = "text",
@@ -11,6 +12,7 @@ export enum FORM_FIELD_ELEMENT_TYPE {
 	TIME = "time",
 	DROPDOWN = "dropdown",
 	NUMBER = "number",
+	TOGGLE = "toggle",
 }
 
 export enum FORM_FIELD_STATE {
@@ -22,4 +24,5 @@ export type FormField =
 	| TextFormFieldField
 	| DateFormFieldField
 	| TimeFormFieldField
-	| DropdownFormField;
+	| DropdownFormField
+	| ToggleFormField;

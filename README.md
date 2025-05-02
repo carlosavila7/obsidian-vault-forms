@@ -10,6 +10,8 @@
     - [X] Delete form
     - [X] Update form
         - Try to use the same modal class to create form. In this case, the form is rendered filled with the info from the form that is being updated.
+- [ ] Change required setting on form creation to be a toggle form field
+- [ ] Move settings code currently on `main.ts` to a separate file
 
 ### refactoring
 
@@ -18,8 +20,8 @@
     - when making methods abstract to be implemented by children, keep the common logic on the base class
 
 ### features
- - [ ] Togle field  
-    - [ ] When implement this on the form field modal, add expression to set as not required if it has hide expression
+ - [X] Togle field  
+    - [X] When implement this on the form field modal, add expression to set as not required if it has hide expression
  - [ ] Slider field
  - [ ] Test expresson while creating/updating a form field
 

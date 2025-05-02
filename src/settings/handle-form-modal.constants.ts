@@ -1,4 +1,7 @@
-import { FORM_FIELD_ELEMENT_TYPE, FormField } from "src/form-field/form-field.constants";
+import {
+	FORM_FIELD_ELEMENT_TYPE,
+	FormField,
+} from "src/form-field/form-field.constants";
 
 export const handleFormField: FormField[] = [
 	{
@@ -6,7 +9,7 @@ export const handleFormField: FormField[] = [
 		name: "Type",
 		className: "field-type",
 		content: {},
-		options: { value: ["text", "date", "time", "number", "dropdown"] },
+		options: { value: Object.values(FORM_FIELD_ELEMENT_TYPE) },
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
@@ -55,7 +58,8 @@ export const handleFormField: FormField[] = [
 		name: "Required",
 		description: "To be replaced by toogle element. 1 for true, 0 false",
 		className: "field-required",
-		content: { expression: "1" },
+		hideExpression: "{{$$.field-type === 'toggle'}}",
+		content: { expression: "{{$$.field-type === 'toggle' ? 0 : 1}}" },
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
