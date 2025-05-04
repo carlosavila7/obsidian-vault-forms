@@ -11,7 +11,7 @@
     - [X] Update form
         - Try to use the same modal class to create form. In this case, the form is rendered filled with the info from the form that is being updated.
 - [X] Change required setting on form creation to be a toggle form field
-- [ ] Move settings code currently on `main.ts` to a separate file
+- [X] Move settings code currently on `main.ts` to a separate file
 
 ### refactoring
 
