@@ -91,7 +91,7 @@ export class Form extends Modal {
 	}
 
 	public async createFormFields(): Promise<void> {
-		this.formFields.forEach((formField) => {			
+		this.formFields.forEach((formField) => {
 			const factoryParams = {
 				formField,
 				app: this.app,

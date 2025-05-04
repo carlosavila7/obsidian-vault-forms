@@ -163,7 +163,7 @@ export class HandleFormModal extends Modal {
 
 	private addNewField(field: IFieldData[]) {
 		const formField = fromFormDataToFormField(field);
-
+		
 		this.form.formFields.push(formField);
 
 		this.refreshFieldsSection();

@@ -54,12 +54,14 @@ export const handleFormField: FormField[] = [
 		content: {},
 	},
 	{
-		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
+		type: FORM_FIELD_ELEMENT_TYPE.TOGGLE,
 		name: "Required",
 		description: "To be replaced by toogle element. 1 for true, 0 false",
 		className: "field-required",
 		hideExpression: "{{$$.field-type === 'toggle'}}",
-		content: { expression: "{{$$.field-type === 'toggle' ? 0 : 1}}" },
+		content: {
+			expression: "{{$$.field-type === 'toggle' ? 'false' : 'true' }}",
+		},
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,

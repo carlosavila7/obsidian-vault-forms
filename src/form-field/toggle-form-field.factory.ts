@@ -82,6 +82,6 @@ export class ToggleFormFieldFactory extends FormFieldFactory {
 
 		if (expressionResult === "true" || expressionResult === "false")
 			return expressionResult.toLocaleLowerCase().trim();
-		else return "";
+		else return "false";
 	}
 }

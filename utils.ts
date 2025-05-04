@@ -11,7 +11,7 @@ export function fromFormDataToFormField(formData: IFieldData[]): FormField {
 		formDataMap.set(fieldData.className, fieldData)
 	);
 
-	const formField:FormField = {
+	const formField: FormField = {
 		type: formDataMap.get("field-type")?.fieldValue,
 		name: formDataMap.get("field-name")?.fieldValue,
 		className: formDataMap.get("field-class-name")?.fieldValue,
@@ -21,7 +21,7 @@ export function fromFormDataToFormField(formData: IFieldData[]): FormField {
 		content: {
 			expression: formDataMap.get("field-default-value")?.fieldValue,
 		},
-		required: formDataMap.get("field-required").fieldValue === "1",
+		required: formDataMap.get("field-required").fieldValue === "true",
 		options: {
 			expression: formDataMap.get("field-dropdown-options")?.fieldValue,
 		},
