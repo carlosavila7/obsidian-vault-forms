@@ -1,7 +1,17 @@
+import { IForm } from "src/form";
 import {
 	FORM_FIELD_ELEMENT_TYPE,
 	FormField,
 } from "src/form-field/form-field.constants";
+
+export interface FormBo extends IForm {
+	id: string;
+	active: boolean;
+}
+
+export interface MyPluginSettings {
+	forms: FormBo[];
+}
 
 export const handleFormField: FormField[] = [
 	{
