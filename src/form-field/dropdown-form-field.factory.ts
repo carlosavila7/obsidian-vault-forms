@@ -16,14 +16,14 @@ export class DropdownFormField extends BaseFormField {
 	options: DropdownOptions;
 }
 
-export class DropdownFormFielfFactory extends FormFieldFactoryParams {
+export class DropdownFormFieldFactoryParams extends FormFieldFactoryParams {
 	optionExpressionContext?: FormFieldFactory[];
 }
 
 export class DropdownFormFieldFactory extends FormFieldFactory {
 	formField: DropdownFormField;
 	optionExpressionContext?: FormFieldFactory[];
-	constructor(params: DropdownFormFielfFactory) {
+	constructor(params: DropdownFormFieldFactoryParams) {
 		super(params);
 		this.optionExpressionContext = params.optionExpressionContext;
 	}
