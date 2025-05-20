@@ -15,6 +15,7 @@ import {
 	FormField,
 } from "./form-field/form-field.constants";
 import { ToggleFormFieldFactory } from "./form-field/toggle-form-field.factory";
+import { RangeFormFieldFactory } from "./form-field/range-form-field.factory";
 
 export interface IFieldData {
 	className: string;
@@ -138,6 +139,12 @@ export class Form extends Modal {
 				case FORM_FIELD_ELEMENT_TYPE.TOGGLE:
 					this.formFieldFactories.push(
 						new ToggleFormFieldFactory(factoryParams)
+					);
+					break;
+				case FORM_FIELD_ELEMENT_TYPE.RANGE:
+					console.log("factoryParams", factoryParams);
+					this.formFieldFactories.push(
+						new RangeFormFieldFactory(factoryParams)
 					);
 			}
 		});

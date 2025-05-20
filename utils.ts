@@ -23,6 +23,8 @@ export function fromFormDataToFormField(formData: IFieldData[]): FormField {
 		},
 		required: formDataMap.get("field-required").fieldValue === "true",
 		options: {
+			max: formDataMap.get("field-max")?.fieldValue,
+			min: formDataMap.get("field-min")?.fieldValue,
 			expression: formDataMap.get("field-dropdown-options")?.fieldValue,
 		},
 	};

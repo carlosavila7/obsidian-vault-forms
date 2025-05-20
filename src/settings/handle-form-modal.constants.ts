@@ -49,7 +49,7 @@ export const handleFormField: FormField[] = [
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
 		name: "Placeholder",
-		hideExpression: "{{$$.field-type === 'dropdown'}}",
+		hideExpression: "{{['dropdown','range'].includes($$.field-type)}}",
 		description: "Optional - Enter field placeholder",
 		className: "field-placeholder",
 		content: {},
@@ -68,10 +68,29 @@ export const handleFormField: FormField[] = [
 		name: "Required",
 		description: "To be replaced by toogle element. 1 for true, 0 false",
 		className: "field-required",
-		hideExpression: "{{$$.field-type === 'toggle'}}",
+		hideExpression: "{{['toggle','range'].includes($$.field-type)}}",
 		content: {
-			expression: "{{$$.field-type === 'toggle' ? 'false' : 'true' }}",
+			expression:
+				"{{['toggle','range'].includes($$.field-type) ? 'false' : 'true' }}",
 		},
+	},
+	{
+		type: FORM_FIELD_ELEMENT_TYPE.NUMBER,
+		name: "Min",
+		description: "Enter the range min value",
+		placeholder: "1",
+		className: "field-min",
+		hideExpression: "{{$$.field-type !== 'range'}}",
+		content: {},
+	},
+	{
+		type: FORM_FIELD_ELEMENT_TYPE.NUMBER,
+		name: "Max",
+		description: "Enter the range max value",
+		placeholder: "10",
+		className: "field-max",
+		hideExpression: "{{$$.field-type !== 'range'}}",
+		content: {},
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,

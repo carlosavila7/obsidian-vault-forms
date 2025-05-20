@@ -5,6 +5,7 @@ import { FormField } from "src/form-field/form-field.constants";
 import { fromFormDataToFormField } from "utils";
 import { ConfirmationModal } from "./confirmation-modal";
 import { handleFormField } from "./handle-form-modal.constants";
+import { RangeFormField } from "src/form-field/range-form-field.factory";
 
 interface HandleFormModalParams {
 	app: App;
@@ -163,7 +164,7 @@ export class HandleFormModal extends Modal {
 
 	private addNewField(field: IFieldData[]) {
 		const formField = fromFormDataToFormField(field);
-		
+
 		this.form.formFields.push(formField);
 
 		this.refreshFieldsSection();
@@ -286,10 +287,22 @@ export class HandleFormModal extends Modal {
 				case "field-default-value":
 					valueToAssing = formField.content.expression;
 					break;
+				// dropdown-specific-fields
 				case "field-dropdown-options":
 					field.bypassValueExpressionEvaluation = true;
 					valueToAssing = (formField as DropdownFormField)?.options
 						.expression;
+					break;
+				// range-specific-fields
+				case "field-min":
+					valueToAssing = (
+						formField as RangeFormField
+					).options.min.toString();
+					break;
+				case "field-max":
+					valueToAssing = (
+						formField as RangeFormField
+					).options.max.toString();
 					break;
 			}
 

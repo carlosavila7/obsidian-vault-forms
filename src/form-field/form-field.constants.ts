@@ -1,4 +1,5 @@
 import { DropdownFormField } from "./dropdown-form-field.factory";
+import { RangeFormField } from "./range-form-field.factory";
 import {
 	DateFormFieldField,
 	TextFormFieldField,
@@ -13,6 +14,7 @@ export enum FORM_FIELD_ELEMENT_TYPE {
 	DROPDOWN = "dropdown",
 	NUMBER = "number",
 	TOGGLE = "toggle",
+	RANGE = "range",
 }
 
 export enum FORM_FIELD_STATE {
@@ -25,4 +27,5 @@ export type FormField =
 	| DateFormFieldField
 	| TimeFormFieldField
 	| DropdownFormField
-	| ToggleFormField;
+	| ToggleFormField
+	| RangeFormField;
