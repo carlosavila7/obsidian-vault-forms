@@ -22,7 +22,7 @@
 ### features
  - [X] Togle field  
     - [X] When implement this on the form field modal, add expression to set as not required if it has hide expression
- - [ ] Slider field
+ - [X] Slider field
  - [ ] Test expresson while creating/updating a form field
 
 ### bugs
