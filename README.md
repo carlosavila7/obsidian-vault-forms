@@ -24,6 +24,8 @@
     - [X] When implement this on the form field modal, add expression to set as not required if it has hide expression
  - [X] Slider field
  - [ ] Test expresson while creating/updating a form field
+ - [ ] While reading a path, if the the path resolves to a folder, the output must be an array of the file names inside of it. Currently it does not work if the path is not referencing a note
+    - this could be use to create links between notes. Relational data
 
 ### bugs
 - [X] Update one field updates all fields 
