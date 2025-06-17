@@ -312,14 +312,14 @@ export class HandleFormModal extends Modal {
 		return updateForm;
 	}
 
-	getRequiredUnfilledField(): string | undefined {
+	private getRequiredUnfilledField(): string | undefined {
 		if (!this.form.title) return "Form name";
 		if (!this.form.path) return "Path";
 
 		return;
 	}
 
-	postProcessParams(): void {
+	private postProcessParams(): void {
 		this.form.path = this.form.path.endsWith("/")
 			? this.form.path
 			: `${this.form.path}/`;

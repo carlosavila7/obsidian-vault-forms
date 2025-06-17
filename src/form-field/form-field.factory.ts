@@ -96,7 +96,7 @@ export abstract class FormFieldFactory {
 		value?: string,
 		updatedBy?: string
 	): Promise<void> {
-		new Notice(`${this.formField.className} changed: ${value}`);
+		console.debug(`${this.formField.className} changed: ${value}`);
 
 		await this.assignValue(value, updatedBy);
 		this.hideFormField(
