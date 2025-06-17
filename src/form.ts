@@ -69,26 +69,8 @@ export class Form extends Modal {
 			button
 				.setButtonText(this.submitLabel)
 				.setCta()
-				.onClick(() => {
-					const requiredUnfilledField =
-						this.getRequiredUnfilledField();
-					if (!requiredUnfilledField) {
-						this.onSubmit(this.getData());
-						this.close();
-					} else
-						new Notice(
-							`Fill in the ${requiredUnfilledField.name} field before submitting`
-						);
-				})
+				.onClick(this.handleSubmit.bind(this))
 		);
-	}
-
-	private getRequiredUnfilledField(): FormField | undefined {
-		const requiredFields = this.formFieldFactories
-			.filter((factory) => factory.formField.required)
-			.map((factory) => factory.formField);
-
-		return requiredFields.find((field) => !field.content.value?.trim());
 	}
 
 	public async createFormFields(): Promise<void> {
@@ -199,7 +181,7 @@ export class Form extends Modal {
 	public getData(): IFieldData[] {
 		const data: IFieldData[] = [];
 
-		this.formFieldFactories.map((factory) =>
+		this.formFieldFactories.forEach((factory) =>
 			data.push({
 				className: factory.formField.className,
 				fieldType: factory.formField.type,
@@ -223,7 +205,7 @@ export class Form extends Modal {
 		return (expenseTime + currentMilliseconds).toString(36);
 	}
 
-	public setFormDataNull(): void {
+	private setFormDataNull(): void {
 		this.formFieldFactories.forEach(
 			(factory) => (factory.formField.content.value = undefined)
 		);
@@ -235,4 +217,77 @@ export class Form extends Modal {
 
 		this.app.vault.create(`${this.path}${fileName}.md`, frontmatterData);
 	};
+
+	private handleSubmit() {
+		// check required unfilled fields
+
+		const requiredUnfilledField = this.getRequiredUnfilledField();
+
+		if (requiredUnfilledField) {
+			new Notice(
+				`Fill in the ${requiredUnfilledField.name} field before submitting`
+			);
+			return;
+		}
+
+		let anyInvalidInputExpression = false;
+
+		// check syntax errors on expressions
+
+		const formInputExpressions = this.getInputExpressions();
+
+		formInputExpressions.forEach((inputExpression) => {
+			if (!this.isInputExpressionValid(inputExpression.expression)) {
+				new Notice(`Syntax error on ${inputExpression.fieldName}`);
+				anyInvalidInputExpression = true;
+			}
+		});
+
+		if (anyInvalidInputExpression) return;
+
+		// submit form
+
+		this.onSubmit(this.getData());
+		this.close();
+	}
+
+	private getInputExpressions(): { fieldName: string; expression: string }[] {
+		const inputExpressions: { fieldName: string; expression: string }[] =
+			[];
+
+		this.formFieldFactories.forEach(({ formField }) => {
+			if (!formField.content.value) return;
+
+			const expressionMatcher = new RegExp(/{{(.*)}}/);
+
+			const expressionToEvaluate = expressionMatcher
+				.exec(formField.content.value)
+				?.at(-1);
+
+			if (expressionToEvaluate)
+				inputExpressions.push({
+					fieldName: formField.name,
+					expression: expressionToEvaluate,
+				});
+		});
+
+		return inputExpressions;
+	}
+
+	private isInputExpressionValid(inputExpression: string): boolean {
+		try {
+			new Function(inputExpression);
+			return true;
+		} catch (_) {
+			return false;
+		}
+	}
+
+	private getRequiredUnfilledField(): FormField | undefined {
+		const requiredFields = this.formFieldFactories
+			.filter((factory) => factory.formField.required)
+			.map((factory) => factory.formField);
+
+		return requiredFields.find((field) => !field.content.value?.trim());
+	}
 }
