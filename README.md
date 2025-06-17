@@ -23,9 +23,13 @@
  - [X] Togle field  
     - [X] When implement this on the form field modal, add expression to set as not required if it has hide expression
  - [X] Slider field
- - [ ] Test expresson while creating/updating a form field
+ - [X] Test expresson while creating/updating a form field
  - [ ] While reading a path, if the the path resolves to a folder, the output must be an array of the file names inside of it. Currently it does not work if the path is not referencing a note
     - this could be use to create links between notes. Relational data
+ - [ ] Enable the user to customize the naming of a resultant note on the submit of the form
+    - allow to reference fields to compose the name.
+ - [ ] Review the special caracters to reference fields on expressions
+    - allow it to be changed on the settings page
 
 ### bugs
 - [X] Update one field updates all fields 
