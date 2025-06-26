@@ -21,7 +21,8 @@ export class TextFormFieldFactory extends FormFieldFactory {
 		const setting = new Setting(this.contentEl)
 			.setName(this.formField.name)
 			.setClass(this.formField.className)
-			.addText((text) => text.onChange(this.updateField.bind(this)));
+			.addTextArea((text) => text.onChange(this.updateField.bind(this)))
+			// .addText((text) => text.onChange(this.updateField.bind(this)));
 
 		return setting;
 	}
