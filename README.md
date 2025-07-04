@@ -25,7 +25,7 @@
  - [X] Slider field
  - [ ] Textarea field
  - [X] Test expresson while creating/updating a form field
- - [ ] While reading a path, if the the path resolves to a folder, the output must be an array of the file names inside of it. Currently it does not work if the path is not referencing a note
+ - [X] While reading a path, if the the path resolves to a folder, the output must be an array of the file names inside of it. Currently it does not work if the path is not referencing a note
     - this could be use to create links between notes. Relational data
  - [ ] Enable the user to customize the naming of a resultant note on the submit of the form
     - allow to reference fields to compose the name.
