@@ -1,4 +1,4 @@
-import { App, Notice, Setting } from "obsidian";
+import { App, Notice, Setting, TFile } from "obsidian";
 import { getClassNamesFromExpression, getFilePathsFromExpression } from "utils";
 import {
 	FORM_FIELD_ELEMENT_TYPE,
@@ -200,11 +200,11 @@ export abstract class FormFieldFactory {
 				"g"
 			);
 
-			const valueTeReplace = isFilePath.test(expression)
+			const valueToReplace = isFilePath.test(expression)
 				? `${formField?.formField?.content?.value ?? ""}`
 				: `'${formField?.formField?.content?.value ?? ""}'`;
 
-			expression = expression.replace(classNameMatcher, valueTeReplace);
+			expression = expression.replace(classNameMatcher, valueToReplace);
 		});
 		//#endregion
 
@@ -212,22 +212,55 @@ export abstract class FormFieldFactory {
 		const filePaths = getFilePathsFromExpression(expression);
 
 		await Promise.all(
-			filePaths.map(async (filePath) => {
-				const filePathMatcher = new RegExp(`%%${filePath}%%`);
+			filePaths.map(async (abstractFilePath) => {
+				const abstractFilePathMatcher = /%%.*%%/;
 
-				const [_, fileExtension] = filePath.split(".");
+				if (abstractFilePath.endsWith("/")) {
+					const folderPath = abstractFilePath.endsWith("/")
+						? abstractFilePath.slice(0, -1)
+						: abstractFilePath;
 
-				if (fileExtension !== "md") {
+					const folder = this.app.vault.getFolderByPath(folderPath);
+
+					if (!folder) {
+						new Notice(`Folder not found at ${folderPath}`);
+						return;
+					}
+
+					const fileNames = folder?.children.map(
+						(child) => (child as TFile).basename ?? child.name
+					);
+
+					expression = expression.replace(
+						abstractFilePathMatcher,
+						JSON.stringify(fileNames)
+					);
+
+					return;
+				}
+
+				const [_, fileExtension] = abstractFilePath.split(".");
+
+				if (fileExtension && fileExtension !== "md") {
 					new Notice(
 						`Can't handle .${fileExtension} extension, .md expected`
 					);
 
-					expression = expression.replace(filePathMatcher, "");
+					expression = expression.replace(
+						abstractFilePathMatcher,
+						""
+					);
+					return;
 				}
 
-				const file = this.app.vault.getFileByPath(filePath);
+				if (!fileExtension) abstractFilePath = `${abstractFilePath}.md`;
 
-				if (!file) return;
+				const file = this.app.vault.getFileByPath(abstractFilePath);
+
+				if (!file) {
+					new Notice(`File not found at ${abstractFilePath}`);
+					return;
+				}
 
 				let fileFrontMatter = "";
 				await this.app.fileManager.processFrontMatter(
@@ -236,7 +269,7 @@ export abstract class FormFieldFactory {
 				);
 
 				expression = expression.replace(
-					filePathMatcher,
+					abstractFilePathMatcher,
 					JSON.stringify(fileFrontMatter)
 				);
 			})

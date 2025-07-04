@@ -235,8 +235,14 @@ export class Form extends Modal {
 		// check syntax errors on expressions
 
 		const formInputExpressions = this.getInputExpressions();
+		const filePathMatcher = new RegExp(`%%.*%%`);
 
 		formInputExpressions.forEach((inputExpression) => {
+			inputExpression.expression = inputExpression.expression.replace(
+				filePathMatcher,
+				"[]"
+			);
+
 			if (!this.isInputExpressionValid(inputExpression.expression)) {
 				new Notice(`Syntax error on ${inputExpression.fieldName}`);
 				anyInvalidInputExpression = true;
