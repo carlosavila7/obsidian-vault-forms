@@ -1,6 +1,13 @@
-import { App, Notice, Setting } from "obsidian";
-import { BaseFormField, FormFieldFactory, FormFieldFactoryParams } from "./form-field.factory";
-import { FORM_FIELD_ELEMENT_TYPE, FORM_FIELD_STATE } from "./form-field.constants";
+import { Notice, Setting } from "obsidian";
+import {
+	BaseFormField,
+	FormFieldFactory,
+	FormFieldFactoryParams,
+} from "./form-field.factory";
+import {
+	FORM_FIELD_ELEMENT_TYPE,
+	FORM_FIELD_STATE,
+} from "./form-field.constants";
 
 export class TextFormFieldField extends BaseFormField {
 	type = FORM_FIELD_ELEMENT_TYPE.TEXT;
@@ -40,10 +47,10 @@ export class TextFormFieldFactory extends FormFieldFactory {
 		)
 			value = this.formField.bypassValueExpressionEvaluation
 				? this.formField.content.expression
-				: await this.evaluateExpression(
-					this.formField.content?.expression,
-					this.expressionContext
-				);
+				: await this.expressionEvaluator.evaluateExpression(
+						this.formField.content?.expression,
+						this.expressionContext
+				  );
 
 		if (value === this.formField.content.value) return;
 
@@ -51,6 +58,9 @@ export class TextFormFieldFactory extends FormFieldFactory {
 	}
 
 	set value(valueToSet: string) {
+		if (typeof valueToSet === "object")
+			valueToSet = JSON.stringify(valueToSet);
+
 		const fieldEl = this.contentEl.querySelector(
 			this.getFormFieldHtmlPath()
 		);

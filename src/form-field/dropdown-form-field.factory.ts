@@ -78,10 +78,9 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 		)
 			return;
 
-		const options = await this.evaluateExpression<string[]>(
-			expressionToEvaluate,
-			this.optionExpressionContext
-		);
+		const options = await this.expressionEvaluator.evaluateExpression<
+			string[]
+		>(expressionToEvaluate, this.optionExpressionContext);
 
 		this.addNewOptions(options, updatedBy, false, true);
 	}
@@ -94,7 +93,7 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 
 		const valueToAssing = value
 			? value
-			: (await this.evaluateExpression(
+			: (await this.expressionEvaluator.evaluateExpression(
 					this.formField.content.expression,
 					this.expressionContext
 			  )) || Object.values(this.formField.options?.value ?? {})[0];

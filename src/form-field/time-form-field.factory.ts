@@ -6,10 +6,10 @@ export class TimeFormFieldFactory extends TextFormFieldFactory {
 		value?: string,
 		updatedBy?: string
 	): Promise<void> {
-        // TODO: improve logic here to handle datetime
+		// TODO: improve logic here to handle datetime
 		let valueToAssing = value
 			? value
-			: await this.evaluateExpression(
+			: await this.expressionEvaluator.evaluateExpression(
 					this.formField.content?.expression,
 					this.expressionContext
 			  );

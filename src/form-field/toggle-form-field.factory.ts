@@ -46,9 +46,13 @@ export class ToggleFormFieldFactory extends FormFieldFactory {
 			if (this.formField.bypassValueExpressionEvaluation)
 				value = this.formField.content.expression;
 			else {
-				const expressionResult = await this.evaluateExpression<
-					string | boolean
-				>(this.formField.content?.expression, this.expressionContext);
+				const expressionResult =
+					await this.expressionEvaluator.evaluateExpression<
+						string | boolean
+					>(
+						this.formField.content?.expression,
+						this.expressionContext
+					);
 
 				value =
 					typeof expressionResult === "string"

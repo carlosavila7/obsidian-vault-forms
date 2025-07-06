@@ -1,12 +1,9 @@
-import { App, debounce, Notice, Setting, TFile } from "obsidian";
-import {
-	getClassNamesFromExpression,
-	getFilePathsFromExpression,
-} from "utils";
+import { App, debounce, Setting } from "obsidian";
 import {
 	FORM_FIELD_ELEMENT_TYPE,
 	FORM_FIELD_STATE,
 } from "./form-field.constants";
+import { ExpressionEvaluator } from "src/utils/expression-evaluator";
 
 class FormFieldContent {
 	expression?: string;
@@ -43,8 +40,8 @@ export abstract class FormFieldFactory {
 
 	protected readonly expressionContext?: FormFieldFactory[];
 	protected readonly hideExpressionContext?: FormFieldFactory[];
+	protected expressionEvaluator: ExpressionEvaluator;
 	protected dependentFields: { base: FormFieldFactory; update: () => void }[];
-
 
 	private readonly debounceUpdateFieldTypes = [
 		FORM_FIELD_ELEMENT_TYPE.TEXT,
@@ -58,6 +55,8 @@ export abstract class FormFieldFactory {
 		this.formField = params.formField;
 		this.expressionContext = params?.expressionContext;
 		this.hideExpressionContext = params?.hideExpressionContext;
+
+		this.expressionEvaluator = new ExpressionEvaluator(this.app);
 
 		this.formField.state = FORM_FIELD_STATE.CREATED;
 	}
@@ -101,8 +100,9 @@ export abstract class FormFieldFactory {
 	): Promise<void> {
 		this.setting = this.getSetting();
 		await this.assignDefaultValue();
+
 		this.hideFormField(
-			await this.evaluateExpression<boolean>(
+			await this.expressionEvaluator.evaluateExpression<boolean>(
 				this.formField.hideExpression,
 				this.hideExpressionContext
 			)
@@ -122,8 +122,9 @@ export abstract class FormFieldFactory {
 		console.debug(`${this.formField.className} changed: ${value}`);
 
 		await this.assignValue(value, updatedBy);
+
 		this.hideFormField(
-			await this.evaluateExpression<boolean>(
+			await this.expressionEvaluator.evaluateExpression<boolean>(
 				this.formField.hideExpression,
 				this.hideExpressionContext
 			)
@@ -145,159 +146,6 @@ export abstract class FormFieldFactory {
 
 		if (this.formField.description)
 			setting.setDesc(this.formField.description);
-	}
-
-	protected async evaluateExpression<T>(
-		expression?: string,
-		expressionContext?: FormFieldFactory[]
-	): Promise<T | any> {
-		if (!expression) return "";
-
-		const [prefix, expressionToEvaluate, sufix] =
-			expression.includes("{{") && expression.includes("}}")
-				? this.splitExpression(expression)
-				: [expression, "", ""];
-
-		if (!expressionToEvaluate) return prefix;
-
-		const parsedExpression = await this.parseExpression(
-			expressionToEvaluate,
-			expressionContext
-		);
-
-		try {
-			const expressionResult: T = new Function(
-				`return ${parsedExpression};`
-			)();
-			return prefix
-				? `${prefix}${expressionResult}${sufix ?? ""}`
-				: expressionResult;
-		} catch (error) {
-			new Notice(
-				`Error on evaluating ${this.formField.className} expression`
-			);
-			console.error(expressionToEvaluate);
-			console.error(error);
-
-			return `${prefix}${sufix ?? ""}`;
-		}
-	}
-
-	protected splitExpression(expression: string): string[] {
-		if (!(expression.includes("{{") && expression.includes("}}")))
-			return [expression];
-
-		const expressionMatcher = new RegExp(/{{(.*)}}/);
-
-		const expressionToEvaluate = expressionMatcher.exec(expression)?.at(-1);
-
-		const prefix = expression.split("{{")[0];
-		const sufix = expression.split("}}")[1];
-
-		return [prefix, expressionToEvaluate ?? "", sufix];
-	}
-
-	protected async parseExpression(
-		expression: string,
-		expressionContext?: FormFieldFactory[]
-	): Promise<string> {
-		//#region parse expression context
-		const formFieldClassNames = expressionContext
-			? getClassNamesFromExpression(expression)
-			: [];
-
-		formFieldClassNames.forEach((formFieldClassName) => {
-			const formField = expressionContext?.find(
-				(formField) =>
-					formField.formField.className === formFieldClassName
-			);
-
-			const classNameMatcher = new RegExp(
-				`\\$\\$\\.${formField?.formField.className}`
-			);
-
-			const isFilePath = new RegExp(
-				`%%.*\\$\\$\\.${formField?.formField.className}.*%%`,
-				"g"
-			);
-
-			const valueToReplace = isFilePath.test(expression)
-				? `${formField?.formField?.content?.value ?? ""}`
-				: `'${formField?.formField?.content?.value ?? ""}'`;
-
-			expression = expression.replace(classNameMatcher, valueToReplace);
-		});
-		//#endregion
-
-		//#region parse file content
-		const filePaths = getFilePathsFromExpression(expression);
-
-		await Promise.all(
-			filePaths.map(async (abstractFilePath) => {
-				const abstractFilePathMatcher = /%%.*%%/;
-
-				if (abstractFilePath.endsWith("/")) {
-					const folderPath = abstractFilePath.endsWith("/")
-						? abstractFilePath.slice(0, -1)
-						: abstractFilePath;
-
-					const folder = this.app.vault.getFolderByPath(folderPath);
-
-					if (!folder) {
-						new Notice(`Folder not found at ${folderPath}`);
-						return;
-					}
-
-					const fileNames = folder?.children.map(
-						(child) => (child as TFile).basename ?? child.name
-					);
-
-					expression = expression.replace(
-						abstractFilePathMatcher,
-						JSON.stringify(fileNames)
-					);
-
-					return;
-				}
-
-				const [_, fileExtension] = abstractFilePath.split(".");
-
-				if (fileExtension && fileExtension !== "md") {
-					new Notice(
-						`Can't handle .${fileExtension} extension, .md expected`
-					);
-
-					expression = expression.replace(
-						abstractFilePathMatcher,
-						""
-					);
-					return;
-				}
-
-				if (!fileExtension) abstractFilePath = `${abstractFilePath}.md`;
-
-				const file = this.app.vault.getFileByPath(abstractFilePath);
-
-				if (!file) {
-					new Notice(`File not found at ${abstractFilePath}`);
-					return;
-				}
-
-				let fileFrontMatter = "";
-				await this.app.fileManager.processFrontMatter(
-					file,
-					(frontmatter) => (fileFrontMatter = frontmatter)
-				);
-
-				expression = expression.replace(
-					abstractFilePathMatcher,
-					JSON.stringify(fileFrontMatter)
-				);
-			})
-		);
-		//#endregion
-
-		return expression;
 	}
 
 	protected hideFormField(hide: boolean): void {
