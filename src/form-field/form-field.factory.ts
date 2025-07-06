@@ -1,5 +1,8 @@
-import { App, Notice, Setting, TFile } from "obsidian";
-import { getClassNamesFromExpression, getFilePathsFromExpression } from "utils";
+import { App, debounce, Notice, Setting, TFile } from "obsidian";
+import {
+	getClassNamesFromExpression,
+	getFilePathsFromExpression,
+} from "utils";
 import {
 	FORM_FIELD_ELEMENT_TYPE,
 	FORM_FIELD_STATE,
@@ -40,7 +43,7 @@ export abstract class FormFieldFactory {
 
 	protected readonly expressionContext?: FormFieldFactory[];
 	protected readonly hideExpressionContext?: FormFieldFactory[];
-	protected dependentFields: FormFieldFactory[];
+	protected dependentFields: { base: FormFieldFactory; update: () => void }[];
 
 	constructor(params: FormFieldFactoryParams) {
 		this.contentEl = params.contentEl;
@@ -70,7 +73,13 @@ export abstract class FormFieldFactory {
 	}
 
 	set dependents(dependents: FormFieldFactory[]) {
-		this.dependentFields = dependents;
+		this.dependentFields = dependents.map((dependent) => {
+			const update = debounce(() => {
+				dependent.updateField(undefined, this.formField.className);
+			}, 400);
+
+			return { base: dependent, update };
+		});
 	}
 
 	public async initialiseFormField(
@@ -106,9 +115,7 @@ export abstract class FormFieldFactory {
 			)
 		);
 		await Promise.all(
-			this.dependentFields?.map((dependent) =>
-				dependent.updateField(undefined, this.formField.className)
-			)
+			this.dependentFields?.map((dependent) => dependent.update())
 		);
 	}
 
