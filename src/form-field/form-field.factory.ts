@@ -45,6 +45,13 @@ export abstract class FormFieldFactory {
 	protected readonly hideExpressionContext?: FormFieldFactory[];
 	protected dependentFields: { base: FormFieldFactory; update: () => void }[];
 
+
+	private readonly debounceUpdateFieldTypes = [
+		FORM_FIELD_ELEMENT_TYPE.TEXT,
+		FORM_FIELD_ELEMENT_TYPE.NUMBER,
+		FORM_FIELD_ELEMENT_TYPE.RANGE,
+	];
+
 	constructor(params: FormFieldFactoryParams) {
 		this.contentEl = params.contentEl;
 		this.app = params.app;
@@ -74,11 +81,18 @@ export abstract class FormFieldFactory {
 
 	set dependents(dependents: FormFieldFactory[]) {
 		this.dependentFields = dependents.map((dependent) => {
-			const update = debounce(() => {
+			const update = () => {
 				dependent.updateField(undefined, this.formField.className);
-			}, 400);
+			};
 
-			return { base: dependent, update };
+			return {
+				base: dependent,
+				update: this.debounceUpdateFieldTypes.includes(
+					this.formField.type
+				)
+					? debounce(update, 400)
+					: update,
+			};
 		});
 	}
 
