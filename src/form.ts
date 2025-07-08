@@ -16,6 +16,7 @@ import {
 } from "./form-field/form-field.constants";
 import { ToggleFormFieldFactory } from "./form-field/toggle-form-field.factory";
 import { RangeFormFieldFactory } from "./form-field/range-form-field.factory";
+import { ExpressionEvaluator } from "./utils/expression-evaluator";
 
 export interface IFieldData {
 	className: string;
@@ -27,6 +28,7 @@ export interface IForm {
 	title: string;
 	formFields: FormField[];
 	path: string;
+	outputName?: string;
 	onSubmit?: (data: any) => void;
 	submitLabel?: string;
 }
@@ -39,6 +41,7 @@ export class Form extends Modal {
 	private submitLabel: string;
 	private onSubmit: (data: any) => void;
 	private path: string;
+	private outputName?: string;
 
 	private formFieldFactories: FormFieldFactory[] = [];
 	private formFields: BaseFormField[];
@@ -53,6 +56,7 @@ export class Form extends Modal {
 		this.submitLabel = params.submitLabel ?? "Submit";
 		this.onSubmit = params.onSubmit ?? this.defaultOnSubmit;
 		this.path = params.path;
+		this.outputName = params.outputName;
 
 		this.open();
 	}
@@ -211,11 +215,34 @@ export class Form extends Modal {
 		);
 	}
 
-	private defaultOnSubmit = (data: IFieldData[]) => {
+	private defaultOnSubmit = async (data: IFieldData[]) => {
 		const frontmatterData = getDataAsFrontmatter(data);
-		const fileName = new Date().getTime().toString(36);
 
-		this.app.vault.create(`${this.path}${fileName}.md`, frontmatterData);
+		let fileName = "";
+
+		if (this.outputName) {
+			const expressionEvaluator = new ExpressionEvaluator(this.app);
+			const expressionContext = this.outputName.includes("$$.")
+				? this.getExpressionContext(this.outputName)
+				: undefined;
+
+			const expressionResult =
+				await expressionEvaluator.evaluateExpression<string>(
+					this.outputName,
+					expressionContext
+				);
+
+			fileName =
+				typeof expressionResult === "object"
+					? JSON.stringify(expressionResult)
+					: expressionResult;
+		} else fileName = new Date().getTime().toString(36);
+
+		fileName = fileName.endsWith(".md")
+			? `${this.path}${fileName}`
+			: `${this.path}${fileName}.md`;
+
+		this.app.vault.create(fileName, frontmatterData);
 	};
 
 	private handleSubmit() {

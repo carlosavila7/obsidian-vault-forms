@@ -63,6 +63,15 @@ export class HandleFormModal extends Modal {
 			);
 
 		new Setting(contentEl)
+			.setName("Output name")
+			.setDesc("Optional note name setting")
+			.addText((txt) =>
+				txt
+					.setValue(this.form.outputName ?? "")
+					.onChange((value) => (this.form["outputName"] = value))
+			);
+
+		new Setting(contentEl)
 			.setName("Submit label")
 			.setDesc("Enter the button label for the submit button")
 			.addText((txt) =>
