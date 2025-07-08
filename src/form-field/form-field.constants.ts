@@ -15,6 +15,7 @@ export enum FORM_FIELD_ELEMENT_TYPE {
 	NUMBER = "number",
 	TOGGLE = "toggle",
 	RANGE = "range",
+	TEXTAREA = "textarea",
 }
 
 export enum FORM_FIELD_STATE {

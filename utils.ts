@@ -37,7 +37,8 @@ export function getDataAsFrontmatter(data: IFieldData[]): string {
 	data.map((formData) => {
 		const stringValue =
 			formData.fieldType === FORM_FIELD_ELEMENT_TYPE.DROPDOWN ||
-			formData.fieldType === FORM_FIELD_ELEMENT_TYPE.TEXT
+			formData.fieldType === FORM_FIELD_ELEMENT_TYPE.TEXT ||
+			formData.fieldType === FORM_FIELD_ELEMENT_TYPE.TEXTAREA
 				? `"${formData?.fieldValue ?? ""}"`
 				: formData?.fieldValue;
 

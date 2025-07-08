@@ -17,6 +17,7 @@ import {
 import { ToggleFormFieldFactory } from "./form-field/toggle-form-field.factory";
 import { RangeFormFieldFactory } from "./form-field/range-form-field.factory";
 import { ExpressionEvaluator } from "./utils/expression-evaluator";
+import { TextAreaFormFieldFactory } from "./form-field/textarea-form-field.factory";
 
 export interface IFieldData {
 	className: string;
@@ -128,9 +129,12 @@ export class Form extends Modal {
 					);
 					break;
 				case FORM_FIELD_ELEMENT_TYPE.RANGE:
-					console.log("factoryParams", factoryParams);
 					this.formFieldFactories.push(
 						new RangeFormFieldFactory(factoryParams)
+					);
+				case FORM_FIELD_ELEMENT_TYPE.TEXTAREA:
+					this.formFieldFactories.push(
+						new TextAreaFormFieldFactory(factoryParams)
 					);
 			}
 		});
