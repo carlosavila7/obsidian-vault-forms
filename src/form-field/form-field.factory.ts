@@ -40,6 +40,7 @@ export abstract class FormFieldFactory {
 
 	protected readonly expressionContext?: FormFieldFactory[];
 	protected readonly hideExpressionContext?: FormFieldFactory[];
+	protected baseRequiredValue?: boolean;
 	protected expressionEvaluator: ExpressionEvaluator;
 	protected dependentFields: { base: FormFieldFactory; update: () => void }[];
 
@@ -53,6 +54,7 @@ export abstract class FormFieldFactory {
 		this.contentEl = params.contentEl;
 		this.app = params.app;
 		this.formField = params.formField;
+		this.baseRequiredValue = this.formField.required;
 		this.expressionContext = params?.expressionContext;
 		this.hideExpressionContext = params?.hideExpressionContext;
 
@@ -149,6 +151,9 @@ export abstract class FormFieldFactory {
 	}
 
 	protected hideFormField(hide: boolean): void {
+		this.formField.required =
+			hide === true ? false : this.baseRequiredValue;
+
 		const fieldEl = this.contentEl.querySelector(
 			this.getFormFieldHtmlPath()
 		);
