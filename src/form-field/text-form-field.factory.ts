@@ -12,12 +12,6 @@ import {
 export class TextFormFieldField extends BaseFormField {
 	type = FORM_FIELD_ELEMENT_TYPE.TEXT;
 }
-export class DateFormFieldField extends BaseFormField {
-	type = FORM_FIELD_ELEMENT_TYPE.DATE;
-}
-export class TimeFormFieldField extends BaseFormField {
-	type = FORM_FIELD_ELEMENT_TYPE.TIME;
-}
 
 export class TextFormFieldFactory extends FormFieldFactory {
 	constructor(params: FormFieldFactoryParams) {

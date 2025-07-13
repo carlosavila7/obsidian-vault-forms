@@ -18,6 +18,7 @@ import { ToggleFormFieldFactory } from "./form-field/toggle-form-field.factory";
 import { RangeFormFieldFactory } from "./form-field/range-form-field.factory";
 import { ExpressionEvaluator } from "./utils/expression-evaluator";
 import { TextAreaFormFieldFactory } from "./form-field/textarea-form-field.factory";
+import { DateFormFieldFactory } from "./form-field/date-form-field.factory";
 
 export interface IFieldData {
 	className: string;
@@ -93,8 +94,12 @@ export class Form extends Modal {
 			};
 
 			switch (formField.type) {
-				case FORM_FIELD_ELEMENT_TYPE.TEXT:
 				case FORM_FIELD_ELEMENT_TYPE.DATE:
+					this.formFieldFactories.push(
+						new DateFormFieldFactory(factoryParams)
+					);
+					break;
+				case FORM_FIELD_ELEMENT_TYPE.TEXT:
 				case FORM_FIELD_ELEMENT_TYPE.NUMBER:
 					this.formFieldFactories.push(
 						new TextFormFieldFactory(factoryParams)
