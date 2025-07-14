@@ -38,3 +38,10 @@
     - Makes impossible to have the field as blank
 - [X] Hide expression not working on dropdown fields
     - Try to point to a text field instead of another dropdown to hide the field
+
+### feedbacks
+- [X] Handle date better in data formField date
+    - Handle Date, number, strings
+    - Parse input to string 'YYYY-MM-DD'
+- [X] Handle time better in data formField time
+- [ ] Enable expression on all fields (if not doable, make it happen on placeholder)
