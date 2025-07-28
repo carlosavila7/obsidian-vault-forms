@@ -55,7 +55,7 @@ export class DateFormFieldFactory extends TextFormFieldFactory {
 			? value
 			: await this.expressionEvaluator.evaluateExpression<
 					Date | string | number
-			  >(this.formField.content?.expression, this.expressionContext);
+			  >(this.formField.content.expressionParams);
 
 		const normalized = this.normalizeToDateString(valueToAssign);
 		if (!normalized) {

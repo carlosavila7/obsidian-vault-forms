@@ -40,10 +40,9 @@ export class TextFormFieldFactory extends FormFieldFactory {
 			(!value && this.formField.state === FORM_FIELD_STATE.CREATED)
 		)
 			value = this.formField.bypassValueExpressionEvaluation
-				? this.formField.content.expression
+				? this.formField.content.expressionParams?.expression
 				: await this.expressionEvaluator.evaluateExpression(
-						this.formField.content?.expression,
-						this.expressionContext
+						this.formField.content.expressionParams
 				  );
 
 		if (value === this.formField.content.value) return;

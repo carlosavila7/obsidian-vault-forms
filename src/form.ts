@@ -2,6 +2,7 @@ import { getClassNamesFromExpression, getDataAsFrontmatter } from "utils";
 import {
 	BaseFormField,
 	FormFieldFactory,
+	FormFieldFactoryParams,
 } from "./form-field/form-field.factory";
 import { TimeFormFieldFactory } from "./form-field/time-form-field.factory";
 import { TextFormFieldFactory } from "./form-field/text-form-field.factory";
@@ -59,8 +60,6 @@ export class Form extends Modal {
 		this.onSubmit = params.onSubmit ?? this.defaultOnSubmit;
 		this.path = params.path;
 		this.outputName = params.outputName;
-
-		this.open();
 	}
 
 	onClose(): void {
@@ -81,13 +80,11 @@ export class Form extends Modal {
 
 	public async createFormFields(): Promise<void> {
 		this.formFields.forEach((formField) => {
-			const factoryParams = {
+			this.populateExpressionPropertyContexts(formField);
+			const factoryParams: FormFieldFactoryParams = {
 				formField,
 				app: this.app,
 				contentEl: this.contentEl,
-				expressionContext: this.getExpressionContext(
-					formField.content?.expression
-				),
 				hideExpressionContext: this.getExpressionContext(
 					formField?.hideExpression
 				),
@@ -122,7 +119,6 @@ export class Form extends Modal {
 							formField: dropDownField,
 							app: factoryParams.app,
 							contentEl: factoryParams.contentEl,
-							expressionContext: factoryParams.expressionContext,
 							hideExpressionContext:
 								factoryParams.hideExpressionContext,
 						})
@@ -160,7 +156,7 @@ export class Form extends Modal {
 	): FormFieldFactory[] {
 		return formFieldFactories.filter(
 			(factory) =>
-				factory.formField.content?.expression?.includes(
+				factory.formField.content?.expressionParams?.expression?.includes(
 					`$$.${fieldClassName}`
 				) ||
 				(
@@ -170,6 +166,25 @@ export class Form extends Modal {
 					`$$.${fieldClassName}`
 				)
 		);
+	}
+
+	private populateExpressionPropertyContexts(formField: BaseFormField): void {
+		const keys: (keyof BaseFormField)[] = ["content"];
+
+		keys.forEach((key) => {
+			const property = formField[key];
+			if (
+				property &&
+				typeof property === "object" &&
+				"expressionParams" in property &&
+				typeof property.expressionParams === "object" &&
+				"expression" in property.expressionParams
+			) {
+				property.expressionParams.context = this.getExpressionContext(
+					property.expressionParams.expression
+				);
+			}
+		});
 	}
 
 	private getExpressionContext(expression?: string): FormFieldFactory[] {
@@ -236,10 +251,10 @@ export class Form extends Modal {
 				: undefined;
 
 			const expressionResult =
-				await expressionEvaluator.evaluateExpression<string>(
-					this.outputName,
-					expressionContext
-				);
+				await expressionEvaluator.evaluateExpression<string>({
+					expression: this.outputName,
+					context: expressionContext,
+				});
 
 			fileName =
 				typeof expressionResult === "object"

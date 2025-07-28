@@ -59,15 +59,13 @@ export class RangeFormFieldFactory extends FormFieldFactory {
 				this.formField.state === FORM_FIELD_STATE.CREATED)
 		)
 			if (this.formField.bypassValueExpressionEvaluation)
-				valueAsString = this.formField.content.expression;
+				valueAsString =
+					this.formField.content.expressionParams?.expression;
 			else {
 				const expressionResult =
 					await this.expressionEvaluator.evaluateExpression<
 						string | boolean
-					>(
-						this.formField.content?.expression,
-						this.expressionContext
-					);
+					>(this.formField.content?.expressionParams);
 
 				valueAsString = expressionResult;
 			}

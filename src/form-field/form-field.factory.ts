@@ -5,9 +5,12 @@ import {
 } from "./form-field.constants";
 import { ExpressionEvaluator } from "src/utils/expression-evaluator";
 
-class FormFieldContent {
-	expression?: string;
-	value?: string;
+export class ExpressionProperty<T> {
+	value: T | undefined;
+	expressionParams?: {
+		expression?: string;
+		context?: FormFieldFactory[];
+	};
 }
 
 export class BaseFormField {
@@ -17,7 +20,7 @@ export class BaseFormField {
 	type: FORM_FIELD_ELEMENT_TYPE;
 	description?: string;
 	placeholder?: string;
-	content: FormFieldContent;
+	content: ExpressionProperty<string>;
 	setting?: Setting;
 	hideExpression?: string;
 	required?: boolean;
@@ -28,7 +31,6 @@ export class FormFieldFactoryParams {
 	contentEl: HTMLElement;
 	app: App;
 	formField: BaseFormField;
-	expressionContext?: FormFieldFactory[];
 	hideExpressionContext?: FormFieldFactory[];
 	bypassExpressionEvaluation?: boolean;
 }
@@ -38,7 +40,6 @@ export abstract class FormFieldFactory {
 	protected readonly contentEl: HTMLElement;
 	protected readonly app: App;
 
-	protected readonly expressionContext?: FormFieldFactory[];
 	protected readonly hideExpressionContext?: FormFieldFactory[];
 	protected baseRequiredValue?: boolean;
 	protected expressionEvaluator: ExpressionEvaluator;
@@ -55,7 +56,6 @@ export abstract class FormFieldFactory {
 		this.app = params.app;
 		this.formField = params.formField;
 		this.baseRequiredValue = this.formField.required;
-		this.expressionContext = params?.expressionContext;
 		this.hideExpressionContext = params?.hideExpressionContext;
 
 		this.expressionEvaluator = new ExpressionEvaluator(this.app);
@@ -104,10 +104,10 @@ export abstract class FormFieldFactory {
 		await this.assignDefaultValue();
 
 		this.hideFormField(
-			await this.expressionEvaluator.evaluateExpression<boolean>(
-				this.formField.hideExpression,
-				this.hideExpressionContext
-			)
+			await this.expressionEvaluator.evaluateExpression<boolean>({
+				expression: this.formField.hideExpression,
+				context: this.hideExpressionContext,
+			})
 		);
 		this.dependents = dependents;
 		this.formField.state = FORM_FIELD_STATE.INITIALIZED;
@@ -126,10 +126,10 @@ export abstract class FormFieldFactory {
 		await this.assignValue(value, updatedBy);
 
 		this.hideFormField(
-			await this.expressionEvaluator.evaluateExpression<boolean>(
-				this.formField.hideExpression,
-				this.hideExpressionContext
-			)
+			await this.expressionEvaluator.evaluateExpression<boolean>({
+				expression: this.formField.hideExpression,
+				context: this.hideExpressionContext,
+			})
 		);
 		await Promise.all(
 			this.dependentFields?.map((dependent) => dependent.update())

@@ -22,7 +22,9 @@ export class TextAreaFormFieldFactory extends FormFieldFactory {
 		const setting = new Setting(this.contentEl)
 			.setName(this.formField.name)
 			.setClass(this.formField.className)
-			.addTextArea((textArea) => textArea.onChange(this.updateField.bind(this)));
+			.addTextArea((textArea) =>
+				textArea.onChange(this.updateField.bind(this))
+			);
 
 		return setting;
 	}
@@ -40,11 +42,10 @@ export class TextAreaFormFieldFactory extends FormFieldFactory {
 			(!value && this.formField.state === FORM_FIELD_STATE.CREATED)
 		)
 			value = this.formField.bypassValueExpressionEvaluation
-				? this.formField.content.expression
+				? this.formField.content.expressionParams?.expression
 				: await this.expressionEvaluator.evaluateExpression(
-					this.formField.content?.expression,
-					this.expressionContext
-				);
+						this.formField.content?.expressionParams
+				  );
 
 		if (value === this.formField.content.value) return;
 

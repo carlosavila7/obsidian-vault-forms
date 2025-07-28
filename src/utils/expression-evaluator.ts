@@ -1,5 +1,8 @@
 import { App, Notice, TFile } from "obsidian";
-import { FormFieldFactory } from "src/form-field/form-field.factory";
+import {
+	ExpressionProperty,
+	FormFieldFactory,
+} from "src/form-field/form-field.factory";
 import { getClassNamesFromExpression, getFilePathsFromExpression } from "utils";
 
 export class ExpressionEvaluator {
@@ -9,21 +12,20 @@ export class ExpressionEvaluator {
 	}
 
 	async evaluateExpression<T>(
-		expression?: string,
-		expressionContext?: FormFieldFactory[]
+		params: ExpressionProperty<any>['expressionParams']
 	): Promise<T | any> {
-		if (!expression) return "";
+		if (!params?.expression) return "";
 
 		const [prefix, expressionToEvaluate, suffix] =
-			expression.includes("{{") && expression.includes("}}")
-				? ExpressionEvaluator.splitExpression(expression)
-				: [expression, "", ""];
+			params.expression.includes("{{") && params.expression.includes("}}")
+				? ExpressionEvaluator.splitExpression(params.expression)
+				: [params.expression, "", ""];
 
 		if (!expressionToEvaluate) return prefix;
 
 		const parsedExpression = await this.parseExpression(
 			expressionToEvaluate,
-			expressionContext
+			params.context
 		);
 
 		try {
@@ -36,7 +38,7 @@ export class ExpressionEvaluator {
 				? `${prefix}${expressionResult}${suffix ?? ""}`
 				: expressionResult;
 		} catch (error) {
-			new Notice(`Error on evaluating ${expression} expression`);
+			new Notice(`Error on evaluating ${params.expression} expression`);
 			console.error(expressionToEvaluate);
 			console.error(error);
 

@@ -294,7 +294,8 @@ export class HandleFormModal extends Modal {
 					valueToAssing = `${formField.required}`;
 					break;
 				case "field-default-value":
-					valueToAssing = formField.content.expression;
+					valueToAssing =
+						formField.content.expressionParams?.expression;
 					break;
 				// dropdown-specific-fields
 				case "field-dropdown-options":
@@ -315,7 +316,10 @@ export class HandleFormModal extends Modal {
 					break;
 			}
 
-			field.content = { expression: valueToAssing };
+			field.content = {
+				value: undefined,
+				expressionParams: { expression: valueToAssing },
+			};
 		});
 
 		return updateForm;

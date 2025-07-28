@@ -9,7 +9,7 @@ export class TimeFormFieldField extends BaseFormField {
 
 export class TimeFormFieldFactory extends TextFormFieldFactory {
 	private normalizeToTimeString(
-		input: Date | string | number 
+		input: Date | string | number
 	): string | undefined {
 		let dateObj: Date | undefined;
 
@@ -48,7 +48,7 @@ export class TimeFormFieldFactory extends TextFormFieldFactory {
 			? value
 			: await this.expressionEvaluator.evaluateExpression<
 					Date | string | number
-			  >(this.formField.content?.expression, this.expressionContext);
+			  >(this.formField.content.expressionParams);
 
 		const normalized = this.normalizeToTimeString(valueToAssign);
 		if (!normalized) {

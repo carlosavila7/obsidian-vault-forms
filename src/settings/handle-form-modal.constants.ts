@@ -18,7 +18,7 @@ export const handleFormField: FormField[] = [
 		type: FORM_FIELD_ELEMENT_TYPE.DROPDOWN,
 		name: "Type",
 		className: "field-type",
-		content: {},
+		content: { value: undefined },
 		options: { value: Object.values(FORM_FIELD_ELEMENT_TYPE) },
 	},
 	{
@@ -27,7 +27,7 @@ export const handleFormField: FormField[] = [
 		description: "Enter the field name",
 		className: "field-name",
 		required: true,
-		content: {},
+		content: { value: undefined },
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
@@ -35,8 +35,11 @@ export const handleFormField: FormField[] = [
 		description: "Field identifier",
 		className: "field-class-name",
 		content: {
-			expression:
-				"field-{{$$.field-name.toLowerCase().replaceAll(' ', '-')}}",
+			value: undefined,
+			expressionParams: {
+				expression:
+					"field-{{$$.field-name.toLowerCase().replaceAll(' ', '-')}}",
+			},
 		},
 	},
 	{
@@ -44,7 +47,7 @@ export const handleFormField: FormField[] = [
 		name: "Description",
 		description: "Optional - Enter field description",
 		className: "field-description",
-		content: {},
+		content: { value: undefined },
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
@@ -52,7 +55,7 @@ export const handleFormField: FormField[] = [
 		hideExpression: "{{['dropdown','range'].includes($$.field-type)}}",
 		description: "Optional - Enter field placeholder",
 		className: "field-placeholder",
-		content: {},
+		content: { value: undefined },
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
@@ -61,7 +64,7 @@ export const handleFormField: FormField[] = [
 		className: "field-hide-expression",
 		bypassValueExpressionEvaluation: true,
 		placeholder: "{{field-foo === 'bar'}}",
-		content: {},
+		content: { value: undefined },
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TOGGLE,
@@ -70,8 +73,11 @@ export const handleFormField: FormField[] = [
 		className: "field-required",
 		hideExpression: "{{['toggle','range'].includes($$.field-type)}}",
 		content: {
-			expression:
-				"{{['toggle','range'].includes($$.field-type) ? 'false' : 'true' }}",
+			value: undefined,
+			expressionParams: {
+				expression:
+					"{{['toggle','range'].includes($$.field-type) ? 'false' : 'true' }}",
+			},
 		},
 	},
 	{
@@ -81,7 +87,7 @@ export const handleFormField: FormField[] = [
 		placeholder: "1",
 		className: "field-min",
 		hideExpression: "{{$$.field-type !== 'range'}}",
-		content: {},
+		content: { value: undefined },
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.NUMBER,
@@ -90,15 +96,15 @@ export const handleFormField: FormField[] = [
 		placeholder: "10",
 		className: "field-max",
 		hideExpression: "{{$$.field-type !== 'range'}}",
-		content: {},
+		content: { value: undefined },
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
 		name: "Default Value",
-		description: "Optional - Involve in {{}} to write expression",
+		description: "Optional - Involve in {{ }} to write expression",
 		className: "field-default-value",
 		bypassValueExpressionEvaluation: true,
-		content: {},
+		content: { value: undefined },
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
@@ -107,6 +113,6 @@ export const handleFormField: FormField[] = [
 		placeholder: "{{ ['itemA', 'itemB']}}",
 		className: "field-dropdown-options",
 		hideExpression: "{{$$.field-type !== 'dropdown'}}",
-		content: {},
+		content: { value: undefined },
 	},
 ];

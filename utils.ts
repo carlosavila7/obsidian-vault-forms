@@ -19,17 +19,38 @@ export function fromFormDataToFormField(formData: IFieldData[]): FormField {
 		placeholder: formDataMap.get("field-placeholder")?.fieldValue,
 		hideExpression: formDataMap.get("field-hide-expression")?.fieldValue,
 		content: {
-			expression: formDataMap.get("field-default-value")?.fieldValue,
+			value: isExpression(
+				formDataMap.get("field-default-value")?.fieldValue
+			)
+				? undefined
+				: formDataMap.get("field-default-value")?.fieldValue,
+			expressionParams: {
+				expression: isExpression(
+					formDataMap.get("field-default-value")?.fieldValue
+				)
+					? formDataMap.get("field-default-value")?.fieldValue
+					: undefined,
+			},
 		},
 		required: formDataMap.get("field-required").fieldValue === "true",
 		options: {
 			max: formDataMap.get("field-max")?.fieldValue,
 			min: formDataMap.get("field-min")?.fieldValue,
 			expression: formDataMap.get("field-dropdown-options")?.fieldValue,
-		},
+		}, // TODO: handle specific properties separately to avoid creating empty properties
 	};
 
 	return formField;
+}
+
+export function isExpression(value: string): boolean {
+	const specialCharacters = ["{{", "$$.", "%%"];
+
+	for (const specialChar of specialCharacters) {
+		if (value?.includes(specialChar)) return true;
+	}
+
+	return false;
 }
 
 export function getDataAsFrontmatter(data: IFieldData[]): string {
