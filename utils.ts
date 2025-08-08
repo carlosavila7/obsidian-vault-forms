@@ -11,12 +11,26 @@ export function fromFormDataToFormField(formData: IFieldData[]): FormField {
 		formDataMap.set(fieldData.className, fieldData)
 	);
 
+	// todo: enhance assigning of values with expression
 	const formField: FormField = {
 		type: formDataMap.get("field-type")?.fieldValue,
 		name: formDataMap.get("field-name")?.fieldValue,
 		className: formDataMap.get("field-class-name")?.fieldValue,
 		description: formDataMap.get("field-description")?.fieldValue,
-		placeholder: formDataMap.get("field-placeholder")?.fieldValue,
+		placeholder: {
+			value: isExpression(
+				formDataMap.get("field-placeholder")?.fieldValue
+			)
+				? undefined
+				: formDataMap.get("field-placeholder")?.fieldValue,
+			expressionParams: {
+				expression: isExpression(
+					formDataMap.get("field-placeholder")?.fieldValue
+				)
+					? formDataMap.get("field-placeholder")?.fieldValue
+					: undefined,
+			},
+		},
 		hideExpression: formDataMap.get("field-hide-expression")?.fieldValue,
 		content: {
 			value: isExpression(

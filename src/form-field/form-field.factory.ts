@@ -19,7 +19,7 @@ export class BaseFormField {
 	className: string;
 	type: FORM_FIELD_ELEMENT_TYPE;
 	description?: string;
-	placeholder?: string;
+	placeholder?: ExpressionProperty<string>;
 	content: ExpressionProperty<string>;
 	setting?: Setting;
 	hideExpression?: string;
@@ -74,12 +74,6 @@ export abstract class FormFieldFactory {
 
 	abstract set value(valueToSet: string);
 
-	set setting(setting: Setting) {
-		this.formField.setting = setting;
-
-		this.assignFormFieldAttributes(setting);
-	}
-
 	set dependents(dependents: FormFieldFactory[]) {
 		this.dependentFields = dependents.map((dependent) => {
 			const update = () => {
@@ -100,7 +94,7 @@ export abstract class FormFieldFactory {
 	public async initialiseFormField(
 		dependents: FormFieldFactory[]
 	): Promise<void> {
-		this.setting = this.getSetting();
+		this.formField.setting = this.getSetting();
 		await this.assignDefaultValue();
 
 		this.hideFormField(
@@ -109,6 +103,8 @@ export abstract class FormFieldFactory {
 				context: this.hideExpressionContext,
 			})
 		);
+		await this.assignFormFieldAttributes();
+
 		this.dependents = dependents;
 		this.formField.state = FORM_FIELD_STATE.INITIALIZED;
 	}
@@ -131,23 +127,51 @@ export abstract class FormFieldFactory {
 				context: this.hideExpressionContext,
 			})
 		);
+
+		const htmlEl = this.contentEl.querySelector(
+			this.getFormFieldHtmlPath()
+		);
+
+		if (!htmlEl)
+			throw new Error(
+				`Can't find ${this.formField.className} html element`
+			);
+
+		await this.assignPlaceholder(htmlEl, updatedBy);
 		await Promise.all(
 			this.dependentFields?.map((dependent) => dependent.update())
 		);
 	}
 
-	protected assignFormFieldAttributes(setting: Setting): void {
+	protected async assignFormFieldAttributes(): Promise<void> {
 		const htmlEl = this.contentEl.querySelector(
 			this.getFormFieldHtmlPath()
 		);
 
-		htmlEl?.setAttribute("type", this.formField.type);
+		if (!htmlEl) return;
 
-		if (this.formField.placeholder)
-			htmlEl?.setAttribute("placeholder", this.formField.placeholder);
+		htmlEl.setAttribute("type", this.formField.type);
+
+		if (htmlEl) await this.assignPlaceholder(htmlEl);
 
 		if (this.formField.description)
-			setting.setDesc(this.formField.description);
+			this.formField.setting?.setDesc(this.formField.description);
+	}
+
+	protected async assignPlaceholder(htmlEl: Element, updatedBy?: string) {
+		if (!updatedBy && this.formField.state === FORM_FIELD_STATE.INITIALIZED)
+			return;
+
+		let placeholder = this.formField.placeholder?.value ?? "";
+
+		if (this.formField.placeholder?.expressionParams)
+			placeholder = this.formField.bypassValueExpressionEvaluation
+				? this.formField.placeholder?.expressionParams?.expression
+				: await this.expressionEvaluator.evaluateExpression<string>(
+						this.formField.placeholder?.expressionParams
+				  );
+
+		htmlEl.setAttribute("placeholder", placeholder);
 	}
 
 	protected hideFormField(hide: boolean): void {

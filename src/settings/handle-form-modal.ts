@@ -285,7 +285,8 @@ export class HandleFormModal extends Modal {
 					valueToAssing = formField.description;
 					break;
 				case "field-placeholder":
-					valueToAssing = formField.placeholder;
+					valueToAssing =
+						formField.placeholder?.expressionParams?.expression;
 					break;
 				case "field-hide-expression":
 					valueToAssing = formField.hideExpression;

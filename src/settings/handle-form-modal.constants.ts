@@ -55,6 +55,7 @@ export const handleFormField: FormField[] = [
 		hideExpression: "{{['dropdown','range'].includes($$.field-type)}}",
 		description: "Optional - Enter field placeholder",
 		className: "field-placeholder",
+		bypassValueExpressionEvaluation: true,
 		content: { value: undefined },
 	},
 	{

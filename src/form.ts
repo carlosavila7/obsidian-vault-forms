@@ -154,6 +154,7 @@ export class Form extends Modal {
 		fieldClassName: string,
 		formFieldFactories: FormFieldFactory[]
 	): FormFieldFactory[] {
+		// TODO: handle each possible expression in a better way (not every single check on each property)
 		return formFieldFactories.filter(
 			(factory) =>
 				factory.formField.content?.expressionParams?.expression?.includes(
@@ -164,12 +165,15 @@ export class Form extends Modal {
 				).options?.expression?.includes(`$$.${fieldClassName}`) ||
 				factory.formField.hideExpression?.includes(
 					`$$.${fieldClassName}`
+				) ||
+				factory.formField.placeholder?.expressionParams?.expression?.includes(
+					`$$.${fieldClassName}`
 				)
 		);
 	}
 
 	private populateExpressionPropertyContexts(formField: BaseFormField): void {
-		const keys: (keyof BaseFormField)[] = ["content"];
+		const keys: (keyof BaseFormField)[] = ["content", "placeholder"];
 
 		keys.forEach((key) => {
 			const property = formField[key];
