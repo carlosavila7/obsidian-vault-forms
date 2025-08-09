@@ -168,12 +168,15 @@ export class Form extends Modal {
 				) ||
 				factory.formField.placeholder?.expressionParams?.expression?.includes(
 					`$$.${fieldClassName}`
+				) ||
+				factory.formField.description?.expressionParams?.expression?.includes(
+					`$$.${fieldClassName}`
 				)
 		);
 	}
 
 	private populateExpressionPropertyContexts(formField: BaseFormField): void {
-		const keys: (keyof BaseFormField)[] = ["content", "placeholder"];
+		const keys: (keyof BaseFormField)[] = ["content", "placeholder", "description"];
 
 		keys.forEach((key) => {
 			const property = formField[key];

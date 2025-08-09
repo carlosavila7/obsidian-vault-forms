@@ -18,7 +18,7 @@ export class BaseFormField {
 	name: string;
 	className: string;
 	type: FORM_FIELD_ELEMENT_TYPE;
-	description?: string;
+	description?: ExpressionProperty<string>;
 	placeholder?: ExpressionProperty<string>;
 	content: ExpressionProperty<string>;
 	setting?: Setting;
@@ -138,6 +138,8 @@ export abstract class FormFieldFactory {
 			);
 
 		await this.assignPlaceholder(htmlEl, updatedBy);
+		await this.assignDescription(updatedBy);
+
 		await Promise.all(
 			this.dependentFields?.map((dependent) => dependent.update())
 		);
@@ -154,8 +156,24 @@ export abstract class FormFieldFactory {
 
 		if (htmlEl) await this.assignPlaceholder(htmlEl);
 
-		if (this.formField.description)
-			this.formField.setting?.setDesc(this.formField.description);
+		if (this.formField.description) await this.assignDescription();
+		// this.formField.setting?.setDesc(this.formField.description);
+	}
+
+	protected async assignDescription(updatedBy?: string) {
+		if (!updatedBy && this.formField.state === FORM_FIELD_STATE.INITIALIZED)
+			return;
+
+		let description = this.formField.description?.value ?? "";
+
+		if (this.formField.description?.expressionParams)
+			description = this.formField.bypassValueExpressionEvaluation
+				? this.formField.description?.expressionParams?.expression
+				: await this.expressionEvaluator.evaluateExpression<string>(
+						this.formField.description?.expressionParams
+				  );
+		console.log("setdesc", description);// todo: description is never set
+		this.formField.setting?.setDesc(description);
 	}
 
 	protected async assignPlaceholder(htmlEl: Element, updatedBy?: string) {

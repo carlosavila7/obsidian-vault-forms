@@ -16,7 +16,20 @@ export function fromFormDataToFormField(formData: IFieldData[]): FormField {
 		type: formDataMap.get("field-type")?.fieldValue,
 		name: formDataMap.get("field-name")?.fieldValue,
 		className: formDataMap.get("field-class-name")?.fieldValue,
-		description: formDataMap.get("field-description")?.fieldValue,
+		description: {
+			value: isExpression(
+				formDataMap.get("field-description")?.fieldValue
+			)
+				? undefined
+				: formDataMap.get("field-description")?.fieldValue,
+			expressionParams: {
+				expression: isExpression(
+					formDataMap.get("field-description")?.fieldValue
+				)
+					? formDataMap.get("field-description")?.fieldValue
+					: undefined,
+			},
+		},
 		placeholder: {
 			value: isExpression(
 				formDataMap.get("field-placeholder")?.fieldValue

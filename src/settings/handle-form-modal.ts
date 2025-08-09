@@ -282,7 +282,7 @@ export class HandleFormModal extends Modal {
 					valueToAssing = formField.className;
 					break;
 				case "field-description":
-					valueToAssing = formField.description;
+					valueToAssing = formField.description?.expressionParams?.expression;
 					break;
 				case "field-placeholder":
 					valueToAssing =
