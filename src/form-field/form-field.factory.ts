@@ -172,7 +172,6 @@ export abstract class FormFieldFactory {
 				: await this.expressionEvaluator.evaluateExpression<string>(
 						this.formField.description?.expressionParams
 				  );
-		// todo: description is never set
 		this.formField.setting?.setDesc(description);
 	}
 
