@@ -17,7 +17,7 @@ class DropdownOptions {
 
 export class DropdownFormField extends BaseFormField {
 	type = FORM_FIELD_ELEMENT_TYPE.DROPDOWN;
-	options: DropdownOptions;
+	options: DropdownOptions; //TODO: use expression property here
 }
 
 export class DropdownFormFieldFactoryParams extends FormFieldFactoryParams {
@@ -43,7 +43,7 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 					.onChange(this.updateField.bind(this))
 			);
 
-		this.assignFormFieldAttributes(setting);
+		this.assignFormFieldAttributes();
 		this.hideFormField(false);
 		return setting;
 	}

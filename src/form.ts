@@ -16,7 +16,10 @@ import {
 	FormField,
 } from "./form-field/form-field.constants";
 import { ToggleFormFieldFactory } from "./form-field/toggle-form-field.factory";
-import { RangeFormFieldFactory } from "./form-field/range-form-field.factory";
+import {
+	RangeFormField,
+	RangeFormFieldFactory,
+} from "./form-field/range-form-field.factory";
 import { ExpressionEvaluator } from "./utils/expression-evaluator";
 import { TextAreaFormFieldFactory } from "./form-field/textarea-form-field.factory";
 import { DateFormFieldFactory } from "./form-field/date-form-field.factory";
@@ -110,6 +113,7 @@ export class Form extends Modal {
 				case FORM_FIELD_ELEMENT_TYPE.DROPDOWN:
 					const dropDownField =
 						factoryParams.formField as DropdownFormField;
+
 					this.formFieldFactories.push(
 						new DropdownFormFieldFactory({
 							optionExpressionContext: this.getExpressionContext(
@@ -133,10 +137,12 @@ export class Form extends Modal {
 					this.formFieldFactories.push(
 						new RangeFormFieldFactory(factoryParams)
 					);
+					break;
 				case FORM_FIELD_ELEMENT_TYPE.TEXTAREA:
 					this.formFieldFactories.push(
 						new TextAreaFormFieldFactory(factoryParams)
 					);
+					break;
 			}
 		});
 
@@ -176,7 +182,11 @@ export class Form extends Modal {
 	}
 
 	private populateExpressionPropertyContexts(formField: BaseFormField): void {
-		const keys: (keyof BaseFormField)[] = ["content", "placeholder", "description"];
+		const keys: (keyof FormField)[] = [
+			"content",
+			"placeholder",
+			"description",
+		];
 
 		keys.forEach((key) => {
 			const property = formField[key];

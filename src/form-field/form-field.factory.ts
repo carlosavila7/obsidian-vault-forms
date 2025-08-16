@@ -22,7 +22,7 @@ export class BaseFormField {
 	placeholder?: ExpressionProperty<string>;
 	content: ExpressionProperty<string>;
 	setting?: Setting;
-	hideExpression?: string;
+	hideExpression?: string; // TODO: use expression property here
 	required?: boolean;
 	bypassValueExpressionEvaluation?: boolean;
 }
@@ -172,7 +172,7 @@ export abstract class FormFieldFactory {
 				: await this.expressionEvaluator.evaluateExpression<string>(
 						this.formField.description?.expressionParams
 				  );
-		console.log("setdesc", description);// todo: description is never set
+		// todo: description is never set
 		this.formField.setting?.setDesc(description);
 	}
 
