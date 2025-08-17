@@ -46,24 +46,17 @@ export function fromFormDataToFormField(formData: IFieldData[]): FormField {
 		},
 		hideExpression: formDataMap.get("field-hide-expression")?.fieldValue,
 		content: {
-			value: isExpression(
-				formDataMap.get("field-default-value")?.fieldValue
-			)
-				? undefined
-				: formDataMap.get("field-default-value")?.fieldValue,
-			expressionParams: {
-				expression: isExpression(
-					formDataMap.get("field-default-value")?.fieldValue
-				)
-					? formDataMap.get("field-default-value")?.fieldValue
-					: undefined,
-			},
+			value: undefined,
+			expressionParams:{expression: formDataMap.get("field-default-value")?.fieldValue}
 		},
 		required: formDataMap.get("field-required").fieldValue === "true",
 		options: {
 			max: formDataMap.get("field-max")?.fieldValue,
 			min: formDataMap.get("field-min")?.fieldValue,
-			expression: formDataMap.get("field-dropdown-options")?.fieldValue,
+			expressionParams: {
+				expression: formDataMap.get("field-dropdown-options")
+					?.fieldValue,
+			},
 		}, // TODO: handle specific properties separately to avoid creating empty properties
 	};
 

@@ -1,5 +1,6 @@
 import {
 	BaseFormField,
+	ExpressionProperty,
 	FormFieldFactory,
 	FormFieldFactoryParams,
 } from "./form-field.factory";
@@ -10,14 +11,9 @@ import {
 	FORM_FIELD_STATE,
 } from "./form-field.constants";
 
-class DropdownOptions {
-	value?: string[];
-	expression?: string;
-}
-
 export class DropdownFormField extends BaseFormField {
 	type = FORM_FIELD_ELEMENT_TYPE.DROPDOWN;
-	options: DropdownOptions; //TODO: use expression property here
+	options: ExpressionProperty<string[]>;
 }
 
 export class DropdownFormFieldFactoryParams extends FormFieldFactoryParams {
@@ -26,10 +22,8 @@ export class DropdownFormFieldFactoryParams extends FormFieldFactoryParams {
 
 export class DropdownFormFieldFactory extends FormFieldFactory {
 	formField: DropdownFormField;
-	optionExpressionContext?: FormFieldFactory[];
 	constructor(params: DropdownFormFieldFactoryParams) {
 		super(params);
-		this.optionExpressionContext = params.optionExpressionContext;
 	}
 
 	protected getSetting(): Setting {
@@ -69,7 +63,8 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 	private async resolveDropdownOptions(
 		updatedBy: string = this.formField.className
 	): Promise<void> {
-		const expressionToEvaluate = this.formField.options?.expression;
+		const expressionToEvaluate =
+			this.formField.options?.expressionParams?.expression;
 
 		if (
 			!expressionToEvaluate ||
@@ -80,10 +75,7 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 
 		const options = await this.expressionEvaluator.evaluateExpression<
 			string[]
-		>({
-			expression: expressionToEvaluate,
-			context: this.optionExpressionContext,
-		});
+		>(this.formField.options.expressionParams);
 
 		this.addNewOptions(options, updatedBy, false, true);
 	}

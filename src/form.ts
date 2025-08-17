@@ -116,10 +116,6 @@ export class Form extends Modal {
 
 					this.formFieldFactories.push(
 						new DropdownFormFieldFactory({
-							optionExpressionContext: this.getExpressionContext(
-								(formField as DropdownFormField).options
-									.expression
-							),
 							formField: dropDownField,
 							app: factoryParams.app,
 							contentEl: factoryParams.contentEl,
@@ -168,7 +164,7 @@ export class Form extends Modal {
 				) ||
 				(
 					factory.formField as DropdownFormField
-				).options?.expression?.includes(`$$.${fieldClassName}`) ||
+				).options?.expressionParams?.expression?.includes(`$$.${fieldClassName}`) ||
 				factory.formField.hideExpression?.includes(
 					`$$.${fieldClassName}`
 				) ||
@@ -202,6 +198,21 @@ export class Form extends Modal {
 				);
 			}
 		});
+
+		if(formField.type === FORM_FIELD_ELEMENT_TYPE.DROPDOWN){
+			const property = (formField as DropdownFormField)["options"];
+			if (
+				property &&
+				typeof property === "object" &&
+				"expressionParams" in property &&
+				typeof property.expressionParams === "object" &&
+				"expression" in property.expressionParams
+			) {
+				property.expressionParams.context = this.getExpressionContext(
+					property.expressionParams.expression
+				);
+			}
+		}
 	}
 
 	private getExpressionContext(expression?: string): FormFieldFactory[] {

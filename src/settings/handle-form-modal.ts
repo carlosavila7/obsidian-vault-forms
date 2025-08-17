@@ -302,7 +302,7 @@ export class HandleFormModal extends Modal {
 				case "field-dropdown-options":
 					field.bypassValueExpressionEvaluation = true;
 					valueToAssing = (formField as DropdownFormField)?.options
-						.expression;
+						.expressionParams?.expression;
 					break;
 				// range-specific-fields
 				case "field-min":
