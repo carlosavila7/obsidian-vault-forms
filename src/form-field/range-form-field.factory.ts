@@ -1,26 +1,24 @@
-import { Notice, Setting } from "obsidian";
+import { Notice, Setting, SliderComponent } from "obsidian";
 import {
 	FORM_FIELD_ELEMENT_TYPE,
 	FORM_FIELD_STATE,
 } from "./form-field.constants";
 import {
 	BaseFormField,
+	ExpressionProperty,
 	FormFieldFactory,
 	FormFieldFactoryParams,
 } from "./form-field.factory";
 
-class RangeOptions {
-	min: number;
-	max: number;
-}
-
 export class RangeFormField extends BaseFormField {
 	type = FORM_FIELD_ELEMENT_TYPE.RANGE;
-	options: RangeOptions;
+	maxLimit: ExpressionProperty<number>;
+	minLimit: ExpressionProperty<number>;
 }
 
 export class RangeFormFieldFactory extends FormFieldFactory {
 	public formField: RangeFormField;
+	private sliderComponent: SliderComponent;
 
 	constructor(params: FormFieldFactoryParams) {
 		super(params);
@@ -30,18 +28,28 @@ export class RangeFormFieldFactory extends FormFieldFactory {
 		const setting = new Setting(this.contentEl)
 			.setName(this.formField.name)
 			.setClass(this.formField.className)
-			.addSlider((slider) =>
-				slider
-					.setDynamicTooltip()
-					.setLimits(
-						this.formField.options.min,
-						this.formField.options.max,
-						1
-					)
-					.onChange(this.updateField.bind(this))
-			);
+			.addSlider((slider) => (this.sliderComponent = slider));
+		this.sliderComponent
+			.setDynamicTooltip()
+			.onChange(this.updateField.bind(this));
 
 		return setting;
+	}
+
+	private async resolveSliderLimits() {
+		const min = this.formField.bypassValueExpressionEvaluation
+			? this.formField.maxLimit.expressionParams
+			: await this.expressionEvaluator.evaluateExpression(
+					this.formField.minLimit.expressionParams
+			  );
+
+		const max = this.formField.bypassValueExpressionEvaluation
+			? this.formField.maxLimit.expressionParams
+			: await this.expressionEvaluator.evaluateExpression(
+					this.formField.maxLimit.expressionParams
+			  );
+
+		this.sliderComponent.setLimits(min, max, 1);
 	}
 
 	protected getFormFieldHtmlPath(): string {
@@ -52,6 +60,7 @@ export class RangeFormFieldFactory extends FormFieldFactory {
 		value?: string | number,
 		updatedBy?: string
 	): Promise<void> {
+		await this.resolveSliderLimits();
 		let valueAsString = value?.toString();
 		if (
 			(!valueAsString && updatedBy) ||

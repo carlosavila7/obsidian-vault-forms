@@ -1,6 +1,7 @@
 import { getClassNamesFromExpression, getDataAsFrontmatter } from "utils";
 import {
 	BaseFormField,
+	ExpressionProperty,
 	FormFieldFactory,
 	FormFieldFactoryParams,
 } from "./form-field/form-field.factory";
@@ -164,7 +165,9 @@ export class Form extends Modal {
 				) ||
 				(
 					factory.formField as DropdownFormField
-				).options?.expressionParams?.expression?.includes(`$$.${fieldClassName}`) ||
+				).options?.expressionParams?.expression?.includes(
+					`$$.${fieldClassName}`
+				) ||
 				factory.formField.hideExpression?.includes(
 					`$$.${fieldClassName}`
 				) ||
@@ -172,6 +175,16 @@ export class Form extends Modal {
 					`$$.${fieldClassName}`
 				) ||
 				factory.formField.description?.expressionParams?.expression?.includes(
+					`$$.${fieldClassName}`
+				) ||
+				(
+					factory.formField as RangeFormField
+				).minLimit?.expressionParams?.expression?.includes(
+					`$$.${fieldClassName}`
+				) ||
+				(
+					factory.formField as RangeFormField
+				).maxLimit?.expressionParams?.expression?.includes(
 					`$$.${fieldClassName}`
 				)
 		);
@@ -199,7 +212,23 @@ export class Form extends Modal {
 			}
 		});
 
-		if(formField.type === FORM_FIELD_ELEMENT_TYPE.DROPDOWN){
+		const populatePropertyExpressionContext = (
+			property: ExpressionProperty<any>
+		) => {
+			if (
+				property &&
+				typeof property === "object" &&
+				"expressionParams" in property &&
+				typeof property.expressionParams === "object" &&
+				"expression" in property.expressionParams
+			) {
+				property.expressionParams.context = this.getExpressionContext(
+					property.expressionParams.expression
+				);
+			}
+		};
+
+		if (formField.type === FORM_FIELD_ELEMENT_TYPE.DROPDOWN) {
 			const property = (formField as DropdownFormField)["options"];
 			if (
 				property &&
@@ -212,6 +241,16 @@ export class Form extends Modal {
 					property.expressionParams.expression
 				);
 			}
+		}
+
+		if (formField.type === FORM_FIELD_ELEMENT_TYPE.RANGE) {
+			populatePropertyExpressionContext(
+				(formField as RangeFormField)["minLimit"]
+			);
+			populatePropertyExpressionContext(
+				(formField as RangeFormField)["maxLimit"]
+			);
+			
 		}
 	}
 

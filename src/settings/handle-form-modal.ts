@@ -308,12 +308,12 @@ export class HandleFormModal extends Modal {
 				case "field-min":
 					valueToAssing = (
 						formField as RangeFormField
-					).options.min.toString();
+					).minLimit.expressionParams?.expression;
 					break;
 				case "field-max":
 					valueToAssing = (
 						formField as RangeFormField
-					).options.max.toString();
+					).maxLimit.expressionParams?.expression;
 					break;
 			}
 
