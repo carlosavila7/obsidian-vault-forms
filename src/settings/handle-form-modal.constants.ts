@@ -48,6 +48,7 @@ export const handleFormField: FormField[] = [
 		description: { value: "Optional - Enter field description" },
 		className: "field-description",
 		content: { value: undefined },
+		bypassValueExpressionEvaluation: true,
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
