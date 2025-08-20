@@ -186,6 +186,11 @@ export class Form extends Modal {
 					factory.formField as RangeFormField
 				).maxLimit?.expressionParams?.expression?.includes(
 					`$$.${fieldClassName}`
+				) ||
+				(
+					factory.formField as RangeFormField
+				).step?.expressionParams?.expression?.includes(
+					`$$.${fieldClassName}`
 				)
 		);
 	}
@@ -211,7 +216,7 @@ export class Form extends Modal {
 				);
 			}
 		});
-
+		// todo: use this function on all cases in this method
 		const populatePropertyExpressionContext = (
 			property: ExpressionProperty<any>
 		) => {
@@ -250,7 +255,9 @@ export class Form extends Modal {
 			populatePropertyExpressionContext(
 				(formField as RangeFormField)["maxLimit"]
 			);
-			
+			populatePropertyExpressionContext(
+				(formField as RangeFormField)["step"]
+			);
 		}
 	}
 

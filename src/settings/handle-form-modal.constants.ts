@@ -106,6 +106,15 @@ export const handleFormField: FormField[] = [
 		bypassValueExpressionEvaluation: true,
 	},
 	{
+		type: FORM_FIELD_ELEMENT_TYPE.TEXTAREA,
+		name: "Step",
+		description: { value: "Steps in which the slider will vary" },
+		className: "field-step",
+		hideExpression: "{{$$.field-type !== 'range'}}",
+		content: { value: undefined, expressionParams: { expression: "1" } },
+		bypassValueExpressionEvaluation: true,
+	},
+	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
 		name: "Default Value",
 		description: {

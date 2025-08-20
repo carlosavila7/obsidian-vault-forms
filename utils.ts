@@ -71,6 +71,12 @@ export function fromFormDataToFormField(formData: IFieldData[]): FormField {
 				expression: formDataMap.get("field-max")?.fieldValue,
 			},
 		},
+		step: {
+			value: undefined,
+			expressionParams: {
+				expression: formDataMap.get("field-step")?.fieldValue,
+			},
+		},
 		// TODO: handle specific properties separately to avoid creating empty properties
 	};
 

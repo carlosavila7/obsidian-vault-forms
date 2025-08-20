@@ -315,6 +315,11 @@ export class HandleFormModal extends Modal {
 						formField as RangeFormField
 					).maxLimit.expressionParams?.expression;
 					break;
+				case "field-step":
+					valueToAssing = (
+						formField as RangeFormField
+					).step.expressionParams?.expression;
+					break;
 			}
 
 			field.content = {

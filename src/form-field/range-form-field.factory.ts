@@ -14,6 +14,7 @@ export class RangeFormField extends BaseFormField {
 	type = FORM_FIELD_ELEMENT_TYPE.RANGE;
 	maxLimit: ExpressionProperty<number>;
 	minLimit: ExpressionProperty<number>;
+	step: ExpressionProperty<number>;
 }
 
 export class RangeFormFieldFactory extends FormFieldFactory {
@@ -49,7 +50,13 @@ export class RangeFormFieldFactory extends FormFieldFactory {
 					this.formField.maxLimit.expressionParams
 			  );
 
-		this.sliderComponent.setLimits(min, max, 1);
+		const step = this.formField.bypassValueExpressionEvaluation
+			? this.formField.step?.expressionParams
+			: await this.expressionEvaluator.evaluateExpression(
+					this.formField.step?.expressionParams
+			  );
+
+		this.sliderComponent.setLimits(min, max, step ?? 1);
 	}
 
 	protected getFormFieldHtmlPath(): string {
