@@ -1,8 +1,11 @@
 import { IFieldData } from "src/form";
+import { DropdownFormField } from "src/form-field/dropdown-form-field.factory";
 import {
 	FORM_FIELD_ELEMENT_TYPE,
 	FormField,
 } from "src/form-field/form-field.constants";
+import { ExpressionProperty } from "src/form-field/form-field.factory";
+import { RangeFormField } from "src/form-field/range-form-field.factory";
 
 export function fromFormDataToFormField(formData: IFieldData[]): FormField {
 	const formDataMap = new Map();
@@ -11,64 +14,48 @@ export function fromFormDataToFormField(formData: IFieldData[]): FormField {
 		formDataMap.set(fieldData.className, fieldData)
 	);
 
-	// todo: enhance assigning of values with expression
+	const buildExpressionProperty = (
+		expression: string
+	): ExpressionProperty<any> => ({
+		value: undefined,
+		expressionParams: { expression },
+	});
+
 	const formField: FormField = {
 		type: formDataMap.get("field-type")?.fieldValue,
 		name: formDataMap.get("field-name")?.fieldValue,
 		className: formDataMap.get("field-class-name")?.fieldValue,
-		description: {
-			value: undefined,
-			expressionParams: {
-				expression: formDataMap.get("field-description")?.fieldValue,
-			},
-		},
-		placeholder: {
-			value: undefined,
-			expressionParams: {
-				expression: formDataMap.get("field-placeholder")?.fieldValue,
-			},
-		},
-		hideExpression: {
-			value: undefined,
-			expressionParams: {
-				expression: formDataMap.get("field-hide-expression")
-					?.fieldValue,
-			},
-		},
-		content: {
-			value: undefined,
-			expressionParams: {
-				expression: formDataMap.get("field-default-value")?.fieldValue,
-			},
-		},
+		description: buildExpressionProperty(
+			formDataMap.get("field-description")?.fieldValue
+		),
+		placeholder: buildExpressionProperty(
+			formDataMap.get("field-placeholder")?.fieldValue
+		),
+		hideExpression: buildExpressionProperty(
+			formDataMap.get("field-hide-expression")?.fieldValue
+		),
+		content: buildExpressionProperty(
+			formDataMap.get("field-default-value")?.fieldValue
+		),
 		required: formDataMap.get("field-required").fieldValue === "true",
-		options: {
-			value: undefined,
-			expressionParams: {
-				expression: formDataMap.get("field-dropdown-options")
-					?.fieldValue,
-			},
-		},
-		minLimit: {
-			value: undefined,
-			expressionParams: {
-				expression: formDataMap.get("field-min")?.fieldValue,
-			},
-		},
-		maxLimit: {
-			value: undefined,
-			expressionParams: {
-				expression: formDataMap.get("field-max")?.fieldValue,
-			},
-		},
-		step: {
-			value: undefined,
-			expressionParams: {
-				expression: formDataMap.get("field-step")?.fieldValue,
-			},
-		},
-		// TODO: handle specific properties separately to avoid creating empty properties
 	};
+
+	if (formField.type === FORM_FIELD_ELEMENT_TYPE.DROPDOWN)
+		(formField as DropdownFormField).options = buildExpressionProperty(
+			formDataMap.get("field-dropdown-options")?.fieldValue
+		);
+
+	if (formField.type === FORM_FIELD_ELEMENT_TYPE.RANGE) {
+		(formField as RangeFormField).minLimit = buildExpressionProperty(
+			formDataMap.get("field-min")?.fieldValue
+		);
+		(formField as RangeFormField).maxLimit = buildExpressionProperty(
+			formDataMap.get("field-max")?.fieldValue
+		);
+		(formField as RangeFormField).step = buildExpressionProperty(
+			formDataMap.get("field-step")?.fieldValue
+		);
+	}
 
 	return formField;
 }
