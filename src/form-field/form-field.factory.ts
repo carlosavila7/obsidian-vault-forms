@@ -22,7 +22,7 @@ export class BaseFormField {
 	placeholder?: ExpressionProperty<string>;
 	content: ExpressionProperty<string>;
 	setting?: Setting;
-	hideExpression?: string; // TODO: use expression property here
+	hideExpression?: ExpressionProperty<boolean>;
 	required?: boolean;
 	bypassValueExpressionEvaluation?: boolean;
 }
@@ -98,10 +98,9 @@ export abstract class FormFieldFactory {
 		await this.assignDefaultValue();
 
 		this.hideFormField(
-			await this.expressionEvaluator.evaluateExpression<boolean>({
-				expression: this.formField.hideExpression,
-				context: this.hideExpressionContext,
-			})
+			await this.expressionEvaluator.evaluateExpression<boolean>(
+				this.formField.hideExpression?.expressionParams
+			)
 		);
 		await this.assignFormFieldAttributes();
 
@@ -122,10 +121,7 @@ export abstract class FormFieldFactory {
 		await this.assignValue(value, updatedBy);
 
 		this.hideFormField(
-			await this.expressionEvaluator.evaluateExpression<boolean>({
-				expression: this.formField.hideExpression,
-				context: this.hideExpressionContext,
-			})
+			await this.expressionEvaluator.evaluateExpression<boolean>(this.formField.hideExpression?.expressionParams)
 		);
 
 		const htmlEl = this.contentEl.querySelector(

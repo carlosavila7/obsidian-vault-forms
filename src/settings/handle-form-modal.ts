@@ -282,14 +282,16 @@ export class HandleFormModal extends Modal {
 					valueToAssing = formField.className;
 					break;
 				case "field-description":
-					valueToAssing = formField.description?.expressionParams?.expression;
+					valueToAssing =
+						formField.description?.expressionParams?.expression;
 					break;
 				case "field-placeholder":
 					valueToAssing =
 						formField.placeholder?.expressionParams?.expression;
 					break;
 				case "field-hide-expression":
-					valueToAssing = formField.hideExpression;
+					valueToAssing =
+						formField.hideExpression?.expressionParams?.expression;
 					break;
 				case "field-required":
 					valueToAssing = `${formField.required}`;
@@ -306,19 +308,16 @@ export class HandleFormModal extends Modal {
 					break;
 				// range-specific-fields
 				case "field-min":
-					valueToAssing = (
-						formField as RangeFormField
-					).minLimit.expressionParams?.expression;
+					valueToAssing = (formField as RangeFormField).minLimit
+						.expressionParams?.expression;
 					break;
 				case "field-max":
-					valueToAssing = (
-						formField as RangeFormField
-					).maxLimit.expressionParams?.expression;
+					valueToAssing = (formField as RangeFormField).maxLimit
+						.expressionParams?.expression;
 					break;
 				case "field-step":
-					valueToAssing = (
-						formField as RangeFormField
-					).step.expressionParams?.expression;
+					valueToAssing = (formField as RangeFormField).step
+						.expressionParams?.expression;
 					break;
 			}
 

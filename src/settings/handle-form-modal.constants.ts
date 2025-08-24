@@ -53,7 +53,12 @@ export const handleFormField: FormField[] = [
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
 		name: "Placeholder",
-		hideExpression: "{{['dropdown','range'].includes($$.field-type)}}",
+		hideExpression: {
+			value: undefined,
+			expressionParams: {
+				expression: "{{['dropdown','range'].includes($$.field-type)}}",
+			},
+		},
 		description: { value: "Optional - Enter field placeholder" },
 		className: "field-placeholder",
 		bypassValueExpressionEvaluation: true,
@@ -77,7 +82,12 @@ export const handleFormField: FormField[] = [
 			value: "To be replaced by toggle element. 1 for true, 0 false",
 		},
 		className: "field-required",
-		hideExpression: "{{['toggle','range'].includes($$.field-type)}}",
+		hideExpression: {
+			value: undefined,
+			expressionParams: {
+				expression: "{{['toggle','range'].includes($$.field-type)}}",
+			},
+		},
 		content: {
 			value: undefined,
 			expressionParams: {
@@ -92,7 +102,10 @@ export const handleFormField: FormField[] = [
 		description: { value: "Enter the range min value" },
 		placeholder: { value: "1" },
 		className: "field-min",
-		hideExpression: "{{$$.field-type !== 'range'}}",
+		hideExpression: {
+			value: undefined,
+			expressionParams: { expression: "{{$$.field-type !== 'range'}}" },
+		},
 		content: { value: undefined },
 		bypassValueExpressionEvaluation: true,
 	},
@@ -102,7 +115,10 @@ export const handleFormField: FormField[] = [
 		description: { value: "Enter the range max value" },
 		placeholder: { value: "10" },
 		className: "field-max",
-		hideExpression: "{{$$.field-type !== 'range'}}",
+		hideExpression: {
+			value: undefined,
+			expressionParams: { expression: "{{$$.field-type !== 'range'}}" },
+		},
 		content: { value: undefined },
 		bypassValueExpressionEvaluation: true,
 	},
@@ -111,7 +127,10 @@ export const handleFormField: FormField[] = [
 		name: "Step",
 		description: { value: "Steps in which the slider will vary" },
 		className: "field-step",
-		hideExpression: "{{$$.field-type !== 'range'}}",
+		hideExpression: {
+			value: undefined,
+			expressionParams: { expression: "{{$$.field-type !== 'range'}}" },
+		},
 		content: { value: undefined, expressionParams: { expression: "1" } },
 		bypassValueExpressionEvaluation: true,
 	},
@@ -133,7 +152,12 @@ export const handleFormField: FormField[] = [
 		},
 		placeholder: { value: "{{ ['itemA', 'itemB']}}" },
 		className: "field-dropdown-options",
-		hideExpression: "{{$$.field-type !== 'dropdown'}}",
+		hideExpression: {
+			value: undefined,
+			expressionParams: {
+				expression: "{{$$.field-type !== 'dropdown'}}",
+			},
+		},
 		content: { value: undefined },
 	},
 ];

@@ -90,7 +90,7 @@ export class Form extends Modal {
 				app: this.app,
 				contentEl: this.contentEl,
 				hideExpressionContext: this.getExpressionContext(
-					formField?.hideExpression
+					formField?.hideExpression?.expressionParams?.expression
 				),
 			};
 
@@ -168,7 +168,7 @@ export class Form extends Modal {
 				).options?.expressionParams?.expression?.includes(
 					`$$.${fieldClassName}`
 				) ||
-				factory.formField.hideExpression?.includes(
+				factory.formField.hideExpression?.expressionParams?.expression?.includes(
 					`$$.${fieldClassName}`
 				) ||
 				factory.formField.placeholder?.expressionParams?.expression?.includes(
@@ -200,6 +200,7 @@ export class Form extends Modal {
 			"content",
 			"placeholder",
 			"description",
+			"hideExpression",
 		];
 
 		keys.forEach((key) => {

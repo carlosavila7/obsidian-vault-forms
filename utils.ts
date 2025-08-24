@@ -44,7 +44,13 @@ export function fromFormDataToFormField(formData: IFieldData[]): FormField {
 					: undefined,
 			},
 		},
-		hideExpression: formDataMap.get("field-hide-expression")?.fieldValue,
+		hideExpression: {
+			value: undefined,
+			expressionParams: {
+				expression: formDataMap.get("field-hide-expression")
+					?.fieldValue,
+			},
+		},
 		content: {
 			value: undefined,
 			expressionParams: {
