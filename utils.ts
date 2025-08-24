@@ -17,31 +17,15 @@ export function fromFormDataToFormField(formData: IFieldData[]): FormField {
 		name: formDataMap.get("field-name")?.fieldValue,
 		className: formDataMap.get("field-class-name")?.fieldValue,
 		description: {
-			value: isExpression(
-				formDataMap.get("field-description")?.fieldValue
-			)
-				? undefined
-				: formDataMap.get("field-description")?.fieldValue,
+			value: undefined,
 			expressionParams: {
-				expression: isExpression(
-					formDataMap.get("field-description")?.fieldValue
-				)
-					? formDataMap.get("field-description")?.fieldValue
-					: undefined,
+				expression: formDataMap.get("field-description")?.fieldValue,
 			},
 		},
 		placeholder: {
-			value: isExpression(
-				formDataMap.get("field-placeholder")?.fieldValue
-			)
-				? undefined
-				: formDataMap.get("field-placeholder")?.fieldValue,
+			value: undefined,
 			expressionParams: {
-				expression: isExpression(
-					formDataMap.get("field-placeholder")?.fieldValue
-				)
-					? formDataMap.get("field-placeholder")?.fieldValue
-					: undefined,
+				expression: formDataMap.get("field-placeholder")?.fieldValue,
 			},
 		},
 		hideExpression: {
@@ -87,16 +71,6 @@ export function fromFormDataToFormField(formData: IFieldData[]): FormField {
 	};
 
 	return formField;
-}
-
-export function isExpression(value: string): boolean {
-	const specialCharacters = ["{{", "$$.", "%%"];
-
-	for (const specialChar of specialCharacters) {
-		if (value?.includes(specialChar)) return true;
-	}
-
-	return false;
 }
 
 export function getDataAsFrontmatter(data: IFieldData[]): string {
