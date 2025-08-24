@@ -60,7 +60,7 @@ export class Form extends Modal {
 
 		this.formFields = params.formFields;
 		this.title = params.title;
-		this.submitLabel = params.submitLabel ?? "Submit";
+		this.submitLabel = !!params.submitLabel ? params.submitLabel : "Submit";
 		this.onSubmit = params.onSubmit ?? this.defaultOnSubmit;
 		this.path = params.path;
 		this.outputName = params.outputName;
