@@ -147,6 +147,7 @@ export class Form extends Modal {
 			await factory.initialiseFormField(
 				this.getDependentFields(
 					factory.formField.className,
+					factory.formField.type,
 					this.formFieldFactories
 				)
 			);
@@ -155,43 +156,46 @@ export class Form extends Modal {
 
 	private getDependentFields(
 		fieldClassName: string,
+		fieldType: FORM_FIELD_ELEMENT_TYPE,
 		formFieldFactories: FormFieldFactory[]
 	): FormFieldFactory[] {
-		// TODO: handle each possible expression in a better way (not every single check on each property)
-		return formFieldFactories.filter(
-			(factory) =>
-				factory.formField.content?.expressionParams?.expression?.includes(
-					`$$.${fieldClassName}`
-				) ||
-				(
-					factory.formField as DropdownFormField
-				).options?.expressionParams?.expression?.includes(
-					`$$.${fieldClassName}`
-				) ||
-				factory.formField.hideExpression?.expressionParams?.expression?.includes(
-					`$$.${fieldClassName}`
-				) ||
-				factory.formField.placeholder?.expressionParams?.expression?.includes(
-					`$$.${fieldClassName}`
-				) ||
-				factory.formField.description?.expressionParams?.expression?.includes(
-					`$$.${fieldClassName}`
-				) ||
-				(
-					factory.formField as RangeFormField
-				).minLimit?.expressionParams?.expression?.includes(
-					`$$.${fieldClassName}`
-				) ||
-				(
-					factory.formField as RangeFormField
-				).maxLimit?.expressionParams?.expression?.includes(
-					`$$.${fieldClassName}`
-				) ||
-				(
-					factory.formField as RangeFormField
-				).step?.expressionParams?.expression?.includes(
-					`$$.${fieldClassName}`
-				)
+		const hasReference = (
+			exp: ExpressionProperty<any> | undefined,
+			fieldClassName: string
+		): boolean =>
+			exp?.expressionParams?.expression?.includes(
+				`$$.${fieldClassName}`
+			) ?? false;
+
+		const expressionProperties: ((
+			f: FormField
+		) => ExpressionProperty<any> | undefined)[] = [
+			(f: FormField) => f.content,
+			(f: FormField) => f.hideExpression,
+			(f: FormField) => f.placeholder,
+			(f: FormField) => f.description,
+		];
+
+		const dropdownExpressionProperties = [
+			(f: DropdownFormField) => f.options,
+		];
+
+		const rangeExpressionProperties = [
+			(f: RangeFormField) => f.minLimit,
+			(f: RangeFormField) => f.maxLimit,
+			(f: RangeFormField) => f.step,
+		];
+
+		if (fieldType === FORM_FIELD_ELEMENT_TYPE.DROPDOWN)
+			expressionProperties.push(...dropdownExpressionProperties);
+
+		if (fieldType === FORM_FIELD_ELEMENT_TYPE.RANGE)
+			expressionProperties.push(...rangeExpressionProperties);
+
+		return formFieldFactories.filter((factory) =>
+			expressionProperties.some((prop) =>
+				hasReference(prop(factory.formField), fieldClassName)
+			)
 		);
 	}
 

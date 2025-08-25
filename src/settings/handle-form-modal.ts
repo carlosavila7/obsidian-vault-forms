@@ -298,26 +298,26 @@ export class HandleFormModal extends Modal {
 					break;
 				case "field-default-value":
 					valueToAssing =
-						formField.content.expressionParams?.expression;
+						formField.content?.expressionParams?.expression;
 					break;
 				// dropdown-specific-fields
 				case "field-dropdown-options":
 					field.bypassValueExpressionEvaluation = true;
 					valueToAssing = (formField as DropdownFormField)?.options
-						.expressionParams?.expression;
+						?.expressionParams?.expression;
 					break;
 				// range-specific-fields
 				case "field-min":
 					valueToAssing = (formField as RangeFormField).minLimit
-						.expressionParams?.expression;
+						?.expressionParams?.expression;
 					break;
 				case "field-max":
 					valueToAssing = (formField as RangeFormField).maxLimit
-						.expressionParams?.expression;
+						?.expressionParams?.expression;
 					break;
 				case "field-step":
 					valueToAssing = (formField as RangeFormField).step
-						.expressionParams?.expression;
+						?.expressionParams?.expression;
 					break;
 			}
 
