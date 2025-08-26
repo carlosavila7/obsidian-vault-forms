@@ -180,10 +180,14 @@ export class HandleFormModal extends Modal {
 	}
 
 	private updateField(field: IFieldData[]) {
+		const updatedFormClassName =
+			field.find((f) => f.className === "field-class-name")?.className ??
+			"";
+
 		const updatedFormField = fromFormDataToFormField(field);
 
 		this.form.formFields.forEach((formField) => {
-			if (formField.className === updatedFormField.className)
+			if (formField.className === updatedFormClassName)
 				formField = Object.assign(formField, updatedFormField);
 		});
 
@@ -280,6 +284,7 @@ export class HandleFormModal extends Modal {
 					break;
 				case "field-class-name":
 					valueToAssing = formField.className;
+					field.disable = true;
 					break;
 				case "field-description":
 					valueToAssing =

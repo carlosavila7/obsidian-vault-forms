@@ -22,7 +22,11 @@ export class TextFormFieldFactory extends FormFieldFactory {
 		const setting = new Setting(this.contentEl)
 			.setName(this.formField.name)
 			.setClass(this.formField.className)
-			.addText((text) => text.onChange(this.updateField.bind(this)));
+			.addText((text) =>
+				text
+					.onChange(this.updateField.bind(this))
+					.setDisabled(this.formField.disable ?? false)
+			);
 
 		return setting;
 	}

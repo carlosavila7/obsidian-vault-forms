@@ -25,6 +25,7 @@ export class BaseFormField {
 	hideExpression?: ExpressionProperty<boolean>;
 	required?: boolean;
 	bypassValueExpressionEvaluation?: boolean;
+	disable?: boolean
 }
 
 export class FormFieldFactoryParams {
