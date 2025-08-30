@@ -186,42 +186,30 @@ export class Form extends Modal {
 			(f: RangeFormField) => f.step,
 		];
 
-		if (fieldType === FORM_FIELD_ELEMENT_TYPE.DROPDOWN)
-			expressionProperties.push(...dropdownExpressionProperties);
+		return formFieldFactories.filter((factory) => {
+			if (factory.formField.type === FORM_FIELD_ELEMENT_TYPE.DROPDOWN)
+				return [
+					...dropdownExpressionProperties,
+					...expressionProperties,
+				].some((prop) =>
+					hasReference(prop(factory.formField), fieldClassName)
+				);
 
-		if (fieldType === FORM_FIELD_ELEMENT_TYPE.RANGE)
-			expressionProperties.push(...rangeExpressionProperties);
+			if (factory.formField.type === FORM_FIELD_ELEMENT_TYPE.RANGE)
+				return [
+					...rangeExpressionProperties,
+					...expressionProperties,
+				].some((prop) =>
+					hasReference(prop(factory.formField), fieldClassName)
+				);
 
-		return formFieldFactories.filter((factory) =>
-			expressionProperties.some((prop) =>
+			return expressionProperties.some((prop) =>
 				hasReference(prop(factory.formField), fieldClassName)
-			)
-		);
+			);
+		});
 	}
 
 	private populateExpressionPropertyContexts(formField: BaseFormField): void {
-		const keys: (keyof FormField)[] = [
-			"content",
-			"placeholder",
-			"description",
-			"hideExpression",
-		];
-
-		keys.forEach((key) => {
-			const property = formField[key];
-			if (
-				property &&
-				typeof property === "object" &&
-				"expressionParams" in property &&
-				typeof property.expressionParams === "object" &&
-				"expression" in property.expressionParams
-			) {
-				property.expressionParams.context = this.getExpressionContext(
-					property.expressionParams.expression
-				);
-			}
-		});
-		// todo: use this function on all cases in this method
 		const populatePropertyExpressionContext = (
 			property: ExpressionProperty<any>
 		) => {
@@ -238,20 +226,23 @@ export class Form extends Modal {
 			}
 		};
 
-		if (formField.type === FORM_FIELD_ELEMENT_TYPE.DROPDOWN) {
-			const property = (formField as DropdownFormField)["options"];
-			if (
-				property &&
-				typeof property === "object" &&
-				"expressionParams" in property &&
-				typeof property.expressionParams === "object" &&
-				"expression" in property.expressionParams
-			) {
-				property.expressionParams.context = this.getExpressionContext(
-					property.expressionParams.expression
-				);
-			}
-		}
+		const keys: (keyof FormField)[] = [
+			"content",
+			"placeholder",
+			"description",
+			"hideExpression",
+		];
+
+		keys.forEach((key) =>
+			populatePropertyExpressionContext(
+				formField[key] as ExpressionProperty<any>
+			)
+		);
+
+		if (formField.type === FORM_FIELD_ELEMENT_TYPE.DROPDOWN)
+			populatePropertyExpressionContext(
+				(formField as DropdownFormField)["options"]
+			);
 
 		if (formField.type === FORM_FIELD_ELEMENT_TYPE.RANGE) {
 			populatePropertyExpressionContext(
