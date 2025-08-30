@@ -304,6 +304,7 @@ export class Form extends Modal {
 	}
 
 	private setFormDataNull(): void {
+		this.formFieldFactories = [];
 		this.formFieldFactories.forEach(
 			(factory) => (factory.formField.content.value = undefined)
 		);

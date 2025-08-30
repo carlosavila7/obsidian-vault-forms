@@ -38,6 +38,22 @@
     - Makes impossible to have the field as blank
 - [X] Hide expression not working on dropdown fields
     - Try to point to a text field instead of another dropdown to hide the field
+- [X] Converting circular structure
+    ```
+    Uncaught TypeError: Converting circular structure to JSON
+        --> starting at object with constructor 'e'
+        |     property 'appMenuBarManager' -> object with constructor 'e'
+        --- property 'app' closes the circle
+        at JSON.stringify (<anonymous>)
+        at HandleFormModal.getUpdateForm (VM227 plugin:sample-plugin:1473:12)
+        at HandleFormModal.handleFormFieldUpdate (VM227 plugin:sample-plugin:1378:26)
+        at eval (VM227 plugin:sample-plugin:1434:54)
+        at HTMLDivElement.<anonymous> (app.js:1:1349337)
+    getUpdateForm @ VM227 plugin:sample-plugin:1473
+    handleFormFieldUpdate @ VM227 plugin:sample-plugin:1378
+    eval @ VM227 plugin:sample-plugin:1434
+    (anonymous) @ app.js:1
+    ```
 
 ### feedbacks
 - [X] Handle date better in data formField date
