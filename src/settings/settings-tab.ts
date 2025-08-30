@@ -63,7 +63,8 @@ export class mySettingsTab extends PluginSettingTab {
 	private renderFormList() {
 		this.removeFieldsSection();
 
-		this.plugin.settings.forms?.forEach((form) => {
+		this.plugin.settings.forms?.forEach((f) => {
+			const form = structuredClone(f);
 			this.createFormItemList(form);
 			if (form.active) this.plugin.addCommandForm(form);
 		});
