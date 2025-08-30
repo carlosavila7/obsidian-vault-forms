@@ -104,7 +104,7 @@ export class mySettingsTab extends PluginSettingTab {
 			.addToggle((toggle) => {
 				toggle
 					.setValue(form.active)
-					.onChange(this.getToogleFormActiveCallback(form.id));
+					.onChange(this.getToggleFormActiveCallback(form.id));
 			});
 	}
 
@@ -125,17 +125,17 @@ export class mySettingsTab extends PluginSettingTab {
 		};
 	}
 
-	private getToogleFormActiveCallback(formId: string) {
+	private getToggleFormActiveCallback(formId: string) {
 		return () => {
-			const formToToogle = this.plugin.settings.forms.find(
+			const formToToggle = this.plugin.settings.forms.find(
 				(form) => form.id === formId
 			);
 
-			if (formToToogle) formToToogle.active = !formToToogle?.active;
-			else
-				console.error(
-					`[toogleFormActive] Can't find form with id ${formId}`
-				);
+			if (formToToggle) formToToggle.active = !formToToggle?.active;
+
+			console.error(
+				`[toggleFormActive] Can't find form with id ${formId}`
+			);
 
 			this.plugin.saveSettings();
 			this.renderFormList();

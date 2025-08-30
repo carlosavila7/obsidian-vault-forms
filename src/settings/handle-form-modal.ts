@@ -267,62 +267,62 @@ export class HandleFormModal extends Modal {
 		const updateForm = handleFormField();
 
 		updateForm.map((field) => {
-			let valueToAssing = undefined;
+			let valueToAssign = undefined;
 
 			switch (field.className) {
 				case "field-type":
-					valueToAssing = formField.type;
+					valueToAssign = formField.type;
 					break;
 				case "field-name":
-					valueToAssing = formField.name;
+					valueToAssign = formField.name;
 					break;
 				case "field-class-name":
-					valueToAssing = formField.className;
+					valueToAssign = formField.className;
 					field.disable = true;
 					break;
 				case "field-description":
-					valueToAssing =
+					valueToAssign =
 						formField.description?.expressionParams?.expression;
 					break;
 				case "field-placeholder":
-					valueToAssing =
+					valueToAssign =
 						formField.placeholder?.expressionParams?.expression;
 					break;
 				case "field-hide-expression":
-					valueToAssing =
+					valueToAssign =
 						formField.hideExpression?.expressionParams?.expression;
 					break;
 				case "field-required":
-					valueToAssing = `${formField.required}`;
+					valueToAssign = `${formField.required}`;
 					break;
 				case "field-default-value":
-					valueToAssing =
+					valueToAssign =
 						formField.content?.expressionParams?.expression;
 					break;
 				// dropdown-specific-fields
 				case "field-dropdown-options":
 					field.bypassValueExpressionEvaluation = true;
-					valueToAssing = (formField as DropdownFormField)?.options
+					valueToAssign = (formField as DropdownFormField)?.options
 						?.expressionParams?.expression;
 					break;
 				// range-specific-fields
 				case "field-min":
-					valueToAssing = (formField as RangeFormField).minLimit
+					valueToAssign = (formField as RangeFormField).minLimit
 						?.expressionParams?.expression;
 					break;
 				case "field-max":
-					valueToAssing = (formField as RangeFormField).maxLimit
+					valueToAssign = (formField as RangeFormField).maxLimit
 						?.expressionParams?.expression;
 					break;
 				case "field-step":
-					valueToAssing = (formField as RangeFormField).step
+					valueToAssign = (formField as RangeFormField).step
 						?.expressionParams?.expression;
 					break;
 			}
 
 			field.content = {
 				value: undefined,
-				expressionParams: { expression: valueToAssing },
+				expressionParams: { expression: valueToAssign },
 			};
 		});
 
