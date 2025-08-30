@@ -264,9 +264,7 @@ export class HandleFormModal extends Modal {
 	}
 
 	private getUpdateForm(formField: FormField) {
-		const updateForm: FormField[] = JSON.parse(
-			JSON.stringify(handleFormField)
-		);
+		const updateForm = handleFormField();
 
 		updateForm.map((field) => {
 			let valueToAssing = undefined;
