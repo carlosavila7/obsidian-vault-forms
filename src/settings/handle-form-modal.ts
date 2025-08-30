@@ -108,9 +108,9 @@ export class HandleFormModal extends Modal {
 
 		const formParams: IForm = {
 			formFields: handleFormField(),
-			title: `${this.type} new form field`,
+			title: `Create new field`,
 			onSubmit: this.addNewField.bind(this),
-			submitLabel: `${this.type} field`,
+			submitLabel: `Create`,
 			path: "",
 		};
 
