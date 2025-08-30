@@ -13,7 +13,7 @@ export interface MyPluginSettings {
 	forms: FormBo[];
 }
 
-export const handleFormField: FormField[] = [
+export const handleFormField = ():FormField[] => [
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.DROPDOWN,
 		name: "Type",

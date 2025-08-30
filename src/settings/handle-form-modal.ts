@@ -107,7 +107,7 @@ export class HandleFormModal extends Modal {
 				.setDesc("Add some field to create a form");
 
 		const formParams: IForm = {
-			formFields: handleFormField,
+			formFields: handleFormField(),
 			title: `${this.type} new form field`,
 			onSubmit: this.addNewField.bind(this),
 			submitLabel: `${this.type} field`,
@@ -180,14 +180,10 @@ export class HandleFormModal extends Modal {
 	}
 
 	private updateField(field: IFieldData[]) {
-		const updatedFormClassName =
-			field.find((f) => f.className === "field-class-name")?.className ??
-			"";
-
 		const updatedFormField = fromFormDataToFormField(field);
 
 		this.form.formFields.forEach((formField) => {
-			if (formField.className === updatedFormClassName)
+			if (formField.className === updatedFormField.className)
 				formField = Object.assign(formField, updatedFormField);
 		});
 

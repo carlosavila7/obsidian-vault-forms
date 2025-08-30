@@ -55,7 +55,7 @@ export class TextFormFieldFactory extends FormFieldFactory {
 	}
 
 	set value(valueToSet: string) {
-		if (typeof valueToSet === "object")
+		if (typeof valueToSet !== "string")
 			valueToSet = JSON.stringify(valueToSet);
 
 		const fieldEl = this.contentEl.querySelector(
