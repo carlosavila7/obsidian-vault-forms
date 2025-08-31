@@ -147,7 +147,6 @@ export class Form extends Modal {
 			await factory.initialiseFormField(
 				this.getDependentFields(
 					factory.formField.className,
-					factory.formField.type,
 					this.formFieldFactories
 				)
 			);
@@ -156,9 +155,12 @@ export class Form extends Modal {
 
 	private getDependentFields(
 		fieldClassName: string,
-		fieldType: FORM_FIELD_ELEMENT_TYPE,
 		formFieldFactories: FormFieldFactory[]
 	): FormFieldFactory[] {
+		formFieldFactories = formFieldFactories.filter(
+			(factory) => factory.formField.className !== fieldClassName
+		);
+
 		const hasReference = (
 			exp: ExpressionProperty<any> | undefined,
 			fieldClassName: string
@@ -186,27 +188,19 @@ export class Form extends Modal {
 			(f: RangeFormField) => f.step,
 		];
 
-		return formFieldFactories.filter((factory) => {
+		const dependents = formFieldFactories.filter((factory) => {
 			if (factory.formField.type === FORM_FIELD_ELEMENT_TYPE.DROPDOWN)
-				return [
-					...dropdownExpressionProperties,
-					...expressionProperties,
-				].some((prop) =>
-					hasReference(prop(factory.formField), fieldClassName)
-				);
+				expressionProperties.push(...dropdownExpressionProperties);
 
 			if (factory.formField.type === FORM_FIELD_ELEMENT_TYPE.RANGE)
-				return [
-					...rangeExpressionProperties,
-					...expressionProperties,
-				].some((prop) =>
-					hasReference(prop(factory.formField), fieldClassName)
-				);
+				expressionProperties.push(...rangeExpressionProperties);
 
 			return expressionProperties.some((prop) =>
 				hasReference(prop(factory.formField), fieldClassName)
 			);
 		});
+
+		return dependents;
 	}
 
 	private populateExpressionPropertyContexts(formField: BaseFormField): void {
@@ -279,13 +273,15 @@ export class Form extends Modal {
 	public getData(): IFieldData[] {
 		const data: IFieldData[] = [];
 
-		this.formFieldFactories.forEach((factory) =>
-			data.push({
-				className: factory.formField.className,
-				fieldType: factory.formField.type,
-				fieldValue: factory.formField.content.value,
-			})
-		);
+		this.formFieldFactories.forEach((factory) => {
+			if (factory.formField.writeToOutputNote !== false) {
+				data.push({
+					className: factory.formField.className,
+					fieldType: factory.formField.type,
+					fieldValue: factory.formField.content.value,
+				});
+			}
+		});
 		return data;
 	}
 
