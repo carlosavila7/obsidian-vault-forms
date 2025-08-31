@@ -138,10 +138,6 @@ export class mySettingsTab extends PluginSettingTab {
 
 			if (formToToggle) formToToggle.active = !formToToggle?.active;
 
-			console.error(
-				`[toggleFormActive] Can't find form with id ${formId}`
-			);
-
 			this.plugin.saveSettings();
 			this.renderFormList();
 		};

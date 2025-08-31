@@ -67,7 +67,7 @@ export class DateFormFieldFactory extends TextFormFieldFactory {
 		}
 
 		if (normalized === this.formField.content.value) return;
-		console.log("Normalized", normalized);
+
 		this.value = normalized;
 	}
 }

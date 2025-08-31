@@ -161,7 +161,6 @@ export class HandleFormModal extends Modal {
 	}
 
 	private handleSubmit() {
-		console.log(this.form);
 		const duplicatedClassName = this.getDuplicatedClassName();
 
 		if (!duplicatedClassName) {
@@ -214,8 +213,6 @@ export class HandleFormModal extends Modal {
 	private refreshFieldsSection() {
 		this.removeSubmitSection();
 		this.removeFieldsSection();
-
-		console.log(this.form.formFields);
 
 		this.form.formFields.forEach((formField) => {
 			new Setting(this.contentEl)
