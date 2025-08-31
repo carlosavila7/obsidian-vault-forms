@@ -93,7 +93,7 @@ export abstract class FormFieldFactory {
 		});
 	}
 
-	public async initialiseFormField(
+	public async initializeFormField(
 		dependents: FormFieldFactory[]
 	): Promise<void> {
 		this.formField.setting = this.getSetting();

@@ -144,7 +144,7 @@ export class Form extends Modal {
 		});
 
 		for (const factory of this.formFieldFactories) {
-			await factory.initialiseFormField(
+			await factory.initializeFormField(
 				this.getDependentFields(
 					factory.formField.className,
 					this.formFieldFactories
