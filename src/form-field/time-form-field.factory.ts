@@ -50,9 +50,12 @@ export class TimeFormFieldFactory extends TextFormFieldFactory {
 					Date | string | number
 			  >(this.formField.content.expressionParams);
 
+		if (!valueToAssign) return;
+
 		const normalized = this.normalizeToTimeString(valueToAssign);
+
 		if (!normalized) {
-			new Notice(`Unexpected format for time field. Expected is HH:mm`);
+			new Notice(`Unexpected format for time field.`);
 			return;
 		}
 

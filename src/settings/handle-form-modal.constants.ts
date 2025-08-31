@@ -144,7 +144,7 @@ export const handleFormField = (): FormField[] => [
 		placeholder: {
 			value: undefined,
 			expressionParams: {
-				expression: `{{switch($$.field-type) {case 'number': return 10;case 'date': return 'DD/MM/YYYY';case 'time': return 'hh:mm';case 'dropdown': return "'itemA'";case 'toggle': return "true";default: return '';}}}`,
+				expression: `{{switch($$.field-type) {case 'number': return 10;case 'date': return 'DD/MM/YYYY';case 'time': return 'HH:mm';case 'dropdown': return "'itemA'";case 'toggle': return "true";default: return '';}}}`,
 			},
 		},
 		bypassValueExpressionEvaluation: true,
