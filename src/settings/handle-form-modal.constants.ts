@@ -13,7 +13,7 @@ export interface MyPluginSettings {
 	forms: FormBo[];
 }
 
-export const handleFormField = ():FormField[] => [
+export const handleFormField = (): FormField[] => [
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.DROPDOWN,
 		name: "Type",
@@ -43,16 +43,16 @@ export const handleFormField = ():FormField[] => [
 		},
 	},
 	{
-		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
-		name: "Description",
+		type: FORM_FIELD_ELEMENT_TYPE.TEXTAREA,
+		name: "Description *",
 		description: { value: "Optional - Enter field description" },
 		className: "field-description",
 		content: { value: undefined },
 		bypassValueExpressionEvaluation: true,
 	},
 	{
-		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
-		name: "Placeholder",
+		type: FORM_FIELD_ELEMENT_TYPE.TEXTAREA,
+		name: "Placeholder *",
 		hideExpression: {
 			value: undefined,
 			expressionParams: {
@@ -65,21 +65,21 @@ export const handleFormField = ():FormField[] => [
 		content: { value: undefined },
 	},
 	{
-		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
-		name: "Hide Expression",
+		type: FORM_FIELD_ELEMENT_TYPE.TEXTAREA,
+		name: "Hide Expression *",
 		description: {
 			value: "Optional - Enter expression to hide field if true",
 		},
 		className: "field-hide-expression",
 		bypassValueExpressionEvaluation: true,
-		placeholder: { value: "{{field-foo === 'bar'}}" },
+		placeholder: { value: "false" },
 		content: { value: undefined },
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TOGGLE,
 		name: "Required",
 		description: {
-			value: "To be replaced by toggle element. 1 for true, 0 false",
+			value: "If enabled, the field will be required to submit the form",
 		},
 		className: "field-required",
 		hideExpression: {
@@ -98,7 +98,7 @@ export const handleFormField = ():FormField[] => [
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXTAREA,
-		name: "Min",
+		name: "Min *",
 		description: { value: "Enter the range min value" },
 		placeholder: { value: "1" },
 		className: "field-min",
@@ -111,7 +111,7 @@ export const handleFormField = ():FormField[] => [
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXTAREA,
-		name: "Max",
+		name: "Max *",
 		description: { value: "Enter the range max value" },
 		placeholder: { value: "10" },
 		className: "field-max",
@@ -124,7 +124,7 @@ export const handleFormField = ():FormField[] => [
 	},
 	{
 		type: FORM_FIELD_ELEMENT_TYPE.TEXTAREA,
-		name: "Step",
+		name: "Step *",
 		description: { value: "Steps in which the slider will vary" },
 		className: "field-step",
 		hideExpression: {
@@ -135,22 +135,28 @@ export const handleFormField = ():FormField[] => [
 		bypassValueExpressionEvaluation: true,
 	},
 	{
-		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
-		name: "Default Value",
+		type: FORM_FIELD_ELEMENT_TYPE.TEXTAREA,
+		name: "Value *",
 		description: {
-			value: "Optional - Involve in {{ }} to write expression",
+			value: "Optional - Enter the default value of the field",
 		},
 		className: "field-default-value",
+		placeholder: {
+			value: undefined,
+			expressionParams: {
+				expression: `{{switch($$.field-type) {case 'number': return 10;case 'date': return 'DD/MM/YYYY';case 'time': return 'hh:mm';case 'dropdown': return "'itemA'";case 'toggle': return "true";default: return '';}}}`,
+			},
+		},
 		bypassValueExpressionEvaluation: true,
 		content: { value: undefined },
 	},
 	{
-		type: FORM_FIELD_ELEMENT_TYPE.TEXT,
-		name: "Options",
+		type: FORM_FIELD_ELEMENT_TYPE.TEXTAREA,
+		name: "Options *",
 		description: {
-			value: "Array of options - Involve in {{}} to write expression",
+			value: "Enter the dropdown options as a array",
 		},
-		placeholder: { value: "{{ ['itemA', 'itemB']}}" },
+		placeholder: { value: "['itemA', 'itemB']" },
 		className: "field-dropdown-options",
 		hideExpression: {
 			value: undefined,
@@ -164,13 +170,12 @@ export const handleFormField = ():FormField[] => [
 		type: FORM_FIELD_ELEMENT_TYPE.TOGGLE,
 		name: "Write to Output Note",
 		description: {
-			value:
-				"If enabled, the field value will be written to the output note",
+			value: "If enabled, the field value will be written to the output note",
 		},
 		className: "field-write-to-output-note",
 		content: {
 			value: undefined,
 			expressionParams: { expression: "true" },
 		},
-	}
+	},
 ];
