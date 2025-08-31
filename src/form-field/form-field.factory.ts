@@ -167,11 +167,11 @@ export abstract class FormFieldFactory {
 		let description = this.formField.description?.value ?? "";
 
 		if (this.formField.description?.expressionParams)
-			description = this.formField.bypassValueExpressionEvaluation
-				? this.formField.description?.expressionParams?.expression
-				: await this.expressionEvaluator.evaluateExpression<string>(
-						this.formField.description?.expressionParams
-				  );
+			description =
+				await this.expressionEvaluator.evaluateExpression<string>(
+					this.formField.description?.expressionParams
+				);
+
 		this.formField.setting?.setDesc(description);
 	}
 
@@ -182,11 +182,10 @@ export abstract class FormFieldFactory {
 		let placeholder = this.formField.placeholder?.value ?? "";
 
 		if (this.formField.placeholder?.expressionParams)
-			placeholder = this.formField.bypassValueExpressionEvaluation
-				? this.formField.placeholder?.expressionParams?.expression
-				: await this.expressionEvaluator.evaluateExpression<string>(
-						this.formField.placeholder?.expressionParams
-				  );
+			placeholder =
+				await this.expressionEvaluator.evaluateExpression<string>(
+					this.formField.placeholder?.expressionParams
+				);
 
 		htmlEl.setAttribute("placeholder", placeholder);
 	}
