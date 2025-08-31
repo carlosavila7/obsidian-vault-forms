@@ -35,8 +35,6 @@ export class mySettingsTab extends PluginSettingTab {
 				)
 			);
 
-		containerEl.createEl("h2", { text: "Forms" });
-
 		this.renderFormList();
 	}
 
@@ -63,11 +61,18 @@ export class mySettingsTab extends PluginSettingTab {
 	private renderFormList() {
 		this.removeFieldsSection();
 
-		this.plugin.settings.forms?.forEach((f) => {
-			const form = structuredClone(f);
-			this.createFormItemList(form);
-			if (form.active) this.plugin.addCommandForm(form);
-		});
+		if (this.plugin.settings.forms?.length) {
+			this.containerEl.createEl("h2", {
+				text: "Forms",
+				cls: this.FORM_LIST_ITEM_CLASS,
+			});
+
+			this.plugin.settings.forms.forEach((f) => {
+				const form = structuredClone(f);
+				this.createFormItemList(form);
+				if (form.active) this.plugin.addCommandForm(form);
+			});
+		}
 	}
 
 	private createFormItemList(form: FormBo) {
