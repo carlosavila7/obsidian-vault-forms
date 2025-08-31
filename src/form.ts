@@ -335,6 +335,8 @@ export class Form extends Modal {
 					: expressionResult;
 		} else fileName = new Date().getTime().toString(36);
 
+		fileName = typeof fileName === "string" ? fileName : JSON.stringify(fileName);
+
 		fileName = fileName.endsWith(".md")
 			? `${this.path}${fileName}`
 			: `${this.path}${fileName}.md`;

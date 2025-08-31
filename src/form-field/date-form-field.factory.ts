@@ -57,11 +57,12 @@ export class DateFormFieldFactory extends TextFormFieldFactory {
 					Date | string | number
 			  >(this.formField.content.expressionParams);
 
+		if (!valueToAssign) return;
+
 		const normalized = this.normalizeToDateString(valueToAssign);
+
 		if (!normalized) {
-			new Notice(
-				`Unexpected format for date field. Expected is YYYY-MM-DD`
-			);
+			new Notice(`Unexpected format for date field.`);
 			return;
 		}
 
