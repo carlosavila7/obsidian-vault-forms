@@ -12,9 +12,13 @@ export class ExpressionEvaluator {
 	}
 
 	async evaluateExpression<T>(
-		params: ExpressionProperty<any>['expressionParams']
+		params: ExpressionProperty<any>["expressionParams"]
 	): Promise<T | any> {
 		if (!params?.expression) return "";
+
+		params.expression = ExpressionEvaluator.minifyExpression(
+			params.expression
+		);
 
 		const [prefix, expressionToEvaluate, suffix] =
 			params.expression.includes("{{") && params.expression.includes("}}")
@@ -161,5 +165,9 @@ export class ExpressionEvaluator {
 		const sufix = expression.split("}}")[1];
 
 		return [prefix, expressionToEvaluate ?? "", sufix];
+	}
+
+	static minifyExpression(expression: string): string {
+		return expression.replace(/\s+/g, " ").trim();
 	}
 }
