@@ -53,7 +53,16 @@ export class HandleFormModal extends Modal {
 			);
 
 		new Setting(contentEl)
-			.setName("Path")
+			.setName("Form description")
+			.setDesc("Optional - Insert here the form description")
+			.addText((txt) =>
+				txt
+					.setValue(this.form.description ?? "")
+					.onChange((value) => (this.form["description"] = value))
+			);
+
+		new Setting(contentEl)
+			.setName("Output path")
 			.setDesc("Insert the path on your vault")
 			.addText((txt) =>
 				txt
@@ -63,8 +72,8 @@ export class HandleFormModal extends Modal {
 			);
 
 		new Setting(contentEl)
-			.setName("Output name")
-			.setDesc("Optional note name setting")
+			.setName("Output name *")
+			.setDesc("Optional - Output note name setting")
 			.addText((txt) =>
 				txt
 					.setValue(this.form.outputName ?? "")
@@ -73,7 +82,7 @@ export class HandleFormModal extends Modal {
 
 		new Setting(contentEl)
 			.setName("Submit label")
-			.setDesc("Enter the button label for the submit button")
+			.setDesc("Optional - Enter the button label for the submit button")
 			.addText((txt) =>
 				txt
 					.setValue(this.form.submitLabel ?? "")
@@ -109,6 +118,7 @@ export class HandleFormModal extends Modal {
 		const formParams: IForm = {
 			formFields: handleFormField(),
 			title: `Create new field`,
+			description: "Fields with * can use expressions.",
 			onSubmit: this.addNewField.bind(this),
 			submitLabel: `Create`,
 			path: "",
@@ -141,6 +151,7 @@ export class HandleFormModal extends Modal {
 				formFields: this.getUpdateForm(formFieldToUpdate),
 				title: "Update field",
 				path: "",
+				description: "Fields with * can use expressions.",
 				onSubmit: this.updateField.bind(this),
 				submitLabel: "Update",
 			};

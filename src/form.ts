@@ -33,6 +33,7 @@ export interface IFieldData {
 
 export interface IForm {
 	title: string;
+	description?: string;
 	formFields: FormField[];
 	path: string;
 	outputName?: string;
@@ -45,6 +46,7 @@ export class Form extends Modal {
 	app: App;
 
 	private title: string;
+	private description?: string;
 	private submitLabel: string;
 	private onSubmit: (data: any) => void;
 	private path: string;
@@ -60,6 +62,7 @@ export class Form extends Modal {
 
 		this.formFields = params.formFields;
 		this.title = params.title;
+		this.description = params.description;
 		this.submitLabel = !!params.submitLabel ? params.submitLabel : "Submit";
 		this.onSubmit = params.onSubmit ?? this.defaultOnSubmit;
 		this.path = params.path;
@@ -72,6 +75,9 @@ export class Form extends Modal {
 
 	async onOpen(): Promise<void> {
 		this.contentEl.createEl("h2", { text: this.title });
+		if (this.description) {
+			this.contentEl.createEl("p", { text: this.description });
+		}
 		await this.createFormFields();
 
 		new Setting(this.contentEl).addButton((button) =>
