@@ -1,6 +1,5 @@
-import { hideExpressionExample } from "_examples";
 import { Plugin } from "obsidian";
-import { Form, IForm } from "src/form";
+import { Form } from "src/form";
 import {
 	FormBo,
 	MyPluginSettings,
@@ -14,17 +13,6 @@ export default class MyPlugin extends Plugin {
 		await this.saveSettings();
 		await this.loadSettings();
 
-		const formParams: IForm = {
-			formFields: hideExpressionExample,
-			title: "This is a form field",
-			path: "expenses/",
-			submitLabel: "Submit ribbon form",
-		};
-
-		this.addRibbonIcon("wallet", formParams.title, () => {
-			new Form(this.app, formParams);
-		});
-
 		this.addSettingTab(new mySettingsTab(this));
 
 		this.activateForms();
@@ -33,11 +21,7 @@ export default class MyPlugin extends Plugin {
 	onunload() {}
 
 	async loadSettings() {
-		this.settings = Object.assign(
-			{},
-			// DEFAULT_SETTINGS,
-			await this.loadData()
-		);
+		this.settings = Object.assign({}, await this.loadData());
 	}
 
 	async saveSettings() {

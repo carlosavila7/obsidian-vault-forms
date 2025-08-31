@@ -62,7 +62,7 @@ export class DateFormFieldFactory extends TextFormFieldFactory {
 		const normalized = this.normalizeToDateString(valueToAssign);
 
 		if (!normalized) {
-			new Notice(`Unexpected format for date field.`);
+			new Notice(`Unexpected format for date field`);
 			return;
 		}
 

@@ -155,7 +155,6 @@ export abstract class FormFieldFactory {
 		if (htmlEl) await this.assignPlaceholder(htmlEl);
 
 		if (this.formField.description) await this.assignDescription();
-		// this.formField.setting?.setDesc(this.formField.description);
 	}
 
 	protected async assignDescription(updatedBy?: string) {

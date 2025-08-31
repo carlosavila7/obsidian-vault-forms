@@ -55,7 +55,7 @@ export class TimeFormFieldFactory extends TextFormFieldFactory {
 		const normalized = this.normalizeToTimeString(valueToAssign);
 
 		if (!normalized) {
-			new Notice(`Unexpected format for time field.`);
+			new Notice(`Unexpected format for time field`);
 			return;
 		}
 
