@@ -299,6 +299,9 @@ export class HandleFormModal extends Modal {
 					valueToAssign =
 						formField.content?.expressionParams?.expression;
 					break;
+				case "field-write-to-output-note":
+					valueToAssign = `${formField.writeToOutputNote ?? true}`;
+					break;
 				// dropdown-specific-fields
 				case "field-dropdown-options":
 					field.bypassValueExpressionEvaluation = true;

@@ -160,4 +160,17 @@ export const handleFormField = ():FormField[] => [
 		},
 		content: { value: undefined },
 	},
+	{
+		type: FORM_FIELD_ELEMENT_TYPE.TOGGLE,
+		name: "Write to Output Note",
+		description: {
+			value:
+				"If enabled, the field value will be written to the output note",
+		},
+		className: "field-write-to-output-note",
+		content: {
+			value: undefined,
+			expressionParams: { expression: "true" },
+		},
+	}
 ];
