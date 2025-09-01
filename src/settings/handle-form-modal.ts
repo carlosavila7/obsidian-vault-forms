@@ -184,6 +184,15 @@ export class HandleFormModal extends Modal {
 	private addNewField(field: IFieldData[]) {
 		const formField = fromFormDataToFormField(field);
 
+		const formFieldsWithSameClassName = this.form.formFields.filter(
+			(f) => f.className.startsWith(formField.className)
+		);
+
+		if (formFieldsWithSameClassName.length)
+			formField.className = `${formField.className}-${
+				formFieldsWithSameClassName.length + 1
+			}`;
+
 		this.form.formFields.push(formField);
 
 		this.refreshFieldsSection();
