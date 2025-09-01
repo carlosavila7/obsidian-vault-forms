@@ -43,7 +43,8 @@ export interface IForm {
 	outputName?: string;
 	onSubmit?: (data: any) => void;
 	submitLabel?: string;
-}
+		showRibbonIcon?: boolean;
+		ribbonIconName?: string;}
 
 export class Form extends Modal {
 	contentEl: HTMLElement;

@@ -7,6 +7,7 @@ import {
 export interface FormBo extends IForm {
 	id: string;
 	active: boolean;
+	ribbonRef?: HTMLElement;
 }
 
 export interface MyPluginSettings {

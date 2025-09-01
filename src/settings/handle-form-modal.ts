@@ -90,6 +90,28 @@ export class HandleFormModal extends Modal {
 					.onChange((value) => (this.form["submitLabel"] = value))
 			);
 
+		new Setting(this.contentEl)
+			.setName("Show ribbon icon")
+			.setDesc("Add a ribbon icon to open this form")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.form?.showRibbonIcon ?? false)
+					.onChange((value) => {
+						this.form.showRibbonIcon = value;
+					})
+			);
+
+		new Setting(this.contentEl)
+			.setName("Ribbon icon name")
+			.setDesc("Name of the icon to use for the ribbon")
+			.addText((text) =>
+				text
+					.setValue(this.form?.ribbonIconName ?? "")
+					.onChange((value) => {
+						this.form.ribbonIconName = value;
+					})
+			);
+
 		contentEl.createEl("h3", { text: "Fields" });
 
 		this.refreshFieldsSection();
@@ -198,8 +220,8 @@ export class HandleFormModal extends Modal {
 	private addNewField(field: IFieldData[]) {
 		const formField = fromFormDataToFormField(field);
 
-		const formFieldsWithSameClassName = this.form.formFields.filter(
-			(f) => f.className.startsWith(formField.className)
+		const formFieldsWithSameClassName = this.form.formFields.filter((f) =>
+			f.className.startsWith(formField.className)
 		);
 
 		if (formFieldsWithSameClassName.length)

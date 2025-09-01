@@ -31,6 +31,7 @@ export default class MyPlugin extends Plugin {
 	private activateForms() {
 		this.settings.forms?.forEach((form) => {
 			if (form.active) this.addCommandForm(form);
+			if (form.showRibbonIcon) this.addRibbonForm(form);
 		});
 	}
 
@@ -42,5 +43,15 @@ export default class MyPlugin extends Plugin {
 				new Form(this.app, form).open();
 			},
 		});
+	}
+
+	public addRibbonForm(form: FormBo) {
+		if (form.ribbonRef?.remove) form.ribbonRef.remove();
+
+		form.ribbonRef = this.addRibbonIcon(
+			form.ribbonIconName ?? "circle",
+			form.title,
+			(_) => new Form(this.app, form).open()
+		);
 	}
 }

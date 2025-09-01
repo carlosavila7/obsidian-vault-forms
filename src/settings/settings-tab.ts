@@ -68,9 +68,14 @@ export class mySettingsTab extends PluginSettingTab {
 			});
 
 			this.plugin.settings.forms.forEach((f) => {
+				delete f.ribbonRef;
+
 				const form = structuredClone(f);
 				this.createFormItemList(form);
 				if (form.active) this.plugin.addCommandForm(form);
+
+				if (form.ribbonRef?.remove) form.ribbonRef.remove();
+				if (form.showRibbonIcon) this.plugin.addRibbonForm(form);
 			});
 		}
 	}
@@ -149,6 +154,7 @@ export class mySettingsTab extends PluginSettingTab {
 				(f) => f.id !== form.id
 			);
 
+			if (form.ribbonRef?.remove) form.ribbonRef.remove();
 			if (form.active) new Notice("Reload plugin to fully remove form");
 
 			this.plugin.saveSettings();
