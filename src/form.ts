@@ -1,4 +1,8 @@
-import { getClassNamesFromExpression, getDataAsFrontmatter } from "utils";
+import {
+	getClassNamesFromExpression,
+	getDataAsFrontmatter,
+	isInputExpressionSyntaxValid,
+} from "utils";
 import {
 	BaseFormField,
 	ExpressionProperty,
@@ -335,7 +339,8 @@ export class Form extends Modal {
 					: expressionResult;
 		} else fileName = new Date().getTime().toString(36);
 
-		fileName = typeof fileName === "string" ? fileName : JSON.stringify(fileName);
+		fileName =
+			typeof fileName === "string" ? fileName : JSON.stringify(fileName);
 
 		fileName = fileName.endsWith(".md")
 			? `${this.path}${fileName}`
@@ -369,7 +374,7 @@ export class Form extends Modal {
 				"[]"
 			);
 
-			if (!this.isInputExpressionValid(inputExpression.expression)) {
+			if (!isInputExpressionSyntaxValid(inputExpression.expression)) {
 				new Notice(`Syntax error on ${inputExpression.fieldName}`);
 				anyInvalidInputExpression = true;
 			}
@@ -404,15 +409,6 @@ export class Form extends Modal {
 		});
 
 		return inputExpressions;
-	}
-
-	private isInputExpressionValid(inputExpression: string): boolean {
-		try {
-			new Function(inputExpression);
-			return true;
-		} catch (_) {
-			return false;
-		}
 	}
 
 	private getRequiredUnfilledField(): FormField | undefined {

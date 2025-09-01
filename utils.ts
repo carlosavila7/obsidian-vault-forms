@@ -111,3 +111,12 @@ export function fromArrayToRecord(array?: string[]): Record<string, string> {
 
 	return record;
 }
+
+	export function isInputExpressionSyntaxValid(inputExpression: string): boolean {
+		try {
+			new Function(inputExpression);
+			return true;
+		} catch (_) {
+			return false;
+		}
+	}

@@ -2,7 +2,7 @@ import { App, Modal, Notice, Setting } from "obsidian";
 import { Form, IForm, IFieldData } from "src/form";
 import { DropdownFormField } from "src/form-field/dropdown-form-field.factory";
 import { FormField } from "src/form-field/form-field.constants";
-import { fromFormDataToFormField } from "utils";
+import { fromFormDataToFormField, isInputExpressionSyntaxValid } from "utils";
 import { ConfirmationModal } from "./confirmation-modal";
 import { handleFormField } from "./handle-form-modal.constants";
 import { RangeFormField } from "src/form-field/range-form-field.factory";
@@ -163,22 +163,36 @@ export class HandleFormModal extends Modal {
 	private handleSubmit() {
 		const duplicatedClassName = this.getDuplicatedClassName();
 
-		if (!duplicatedClassName) {
-			const requiredUnfilled = this.getRequiredUnfilledField();
-
-			if (!requiredUnfilled) {
-				this.postProcessParams();
-				this.onSubmit(this.form);
-				this.close();
-			} else
-				new Notice(
-					`Fill in the ${requiredUnfilled} field before submitting`
-				);
-		} else {
+		if (duplicatedClassName) {
 			new Notice(
 				`Can't create form. Class name (${duplicatedClassName}) is not unique`
 			);
+			return;
 		}
+
+		const requiredUnfilled = this.getRequiredUnfilledField();
+
+		if (requiredUnfilled) {
+			new Notice(
+				`Fill in the ${requiredUnfilled} field before submitting`
+			);
+			return;
+		}
+
+		if (this.form.outputName) {
+			const isSyntaxValid = isInputExpressionSyntaxValid(
+				this.form.outputName
+			);
+
+			if (!isSyntaxValid) {
+				new Notice("Syntax error on output name field");
+				return;
+			}
+		}
+
+		this.postProcessParams();
+		this.onSubmit(this.form);
+		this.close();
 	}
 
 	private addNewField(field: IFieldData[]) {
