@@ -113,6 +113,11 @@ export class DropdownFormFieldFactory extends FormFieldFactory {
 		keepOnlyOneByUpdatedField: boolean = true,
 		removeOldOptions: boolean = false
 	): void {
+		newOptions =
+			typeof newOptions === "string"
+				? JSON.parse((newOptions as string).replace(/'/g, `"`))
+				: newOptions;
+
 		if (!newOptions.length) return;
 
 		const formFieldHtmlPath = this.getFormFieldHtmlPath();
