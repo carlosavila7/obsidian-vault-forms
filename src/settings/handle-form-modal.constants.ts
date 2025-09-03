@@ -39,7 +39,7 @@ export const handleFormField = (): FormField[] => [
 			value: undefined,
 			expressionParams: {
 				expression:
-					"field-{{$$.field-name.toLowerCase().replaceAll(' ', '-')}}",
+					"{{$$.field-name.toLowerCase().replace(/[^a-z0-9]/g, '-')}}",
 			},
 		},
 	},
