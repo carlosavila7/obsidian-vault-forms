@@ -260,39 +260,65 @@ export class HandleFormModal extends Modal {
 		this.removeSubmitSection();
 		this.removeFieldsSection();
 
-		this.form.formFields.forEach((formField) => {
-			new Setting(this.contentEl)
+		this.form.formFields.forEach((formField, idx) => {
+			const setting = new Setting(this.contentEl)
 				.setName(formField.name)
 				.setClass(this.FIELDS_SECTION)
-				.setDesc(`${formField.type} - ${formField.className}`)
-				.addExtraButton((btn) =>
-					btn
-						.setIcon("pencil")
-						.setTooltip("Edit field")
-						.onClick(() =>
-							this.handleFormFieldUpdate.bind(this)(
-								formField.className
-							)
-						)
-				)
-				.addExtraButton((btn) =>
-					btn
-						.setIcon("trash-2")
-						.setTooltip("Delete field")
-						.onClick(() => {
-							const confirmationModal = new ConfirmationModal({
-								app: this.app,
-								description: `Are you sure you want to delete the ${formField.name} field?`,
-								onSubmit: this.getDeleteFieldCallback(
-									formField.className
-								).bind(this),
-								submitLabel: "Delete",
-								title: "Are you sure?",
-							});
+				.setDesc(`${formField.type} - ${formField.className}`);
 
-							confirmationModal.open();
+			if (idx > 0)
+				setting.addExtraButton((btn) =>
+					btn
+						.setIcon("arrow-up")
+						.setTooltip("Move up")
+						.onClick(() => {
+							const arr = this.form.formFields;
+							[arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]];
+							this.refreshFieldsSection();
 						})
 				);
+
+			if (idx < this.form.formFields.length - 1)
+				setting.addExtraButton((btn) =>
+					btn
+						.setIcon("arrow-down")
+						.setTooltip("Move down")
+						.onClick(() => {
+							const arr = this.form.formFields;
+							[arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]];
+							this.refreshFieldsSection();
+						})
+				);
+
+			setting.addExtraButton((btn) =>
+				btn
+					.setIcon("pencil")
+					.setTooltip("Edit field")
+					.onClick(() =>
+						this.handleFormFieldUpdate.bind(this)(
+							formField.className
+						)
+					)
+			);
+
+			setting.addExtraButton((btn) =>
+				btn
+					.setIcon("trash-2")
+					.setTooltip("Delete field")
+					.onClick(() => {
+						const confirmationModal = new ConfirmationModal({
+							app: this.app,
+							description: `Are you sure you want to delete the ${formField.name} field?`,
+							onSubmit: this.getDeleteFieldCallback(
+								formField.className
+							).bind(this),
+							submitLabel: "Delete",
+							title: "Are you sure?",
+						});
+
+						confirmationModal.open();
+					})
+			);
 		});
 
 		this.appendSubmitSection();
