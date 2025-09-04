@@ -220,9 +220,10 @@ export class HandleFormModal extends Modal {
 	private addNewField(field: IFieldData[]) {
 		const formField = fromFormDataToFormField(field);
 
-		const formFieldsWithSameClassName = this.form.formFields.filter((f) =>
-			f.className.startsWith(formField.className)
-		);
+		const formFieldsWithSameClassName = this.form.formFields.filter((f) => {
+			const regex = new RegExp(`^${formField.className}(?:-\\d+)?$`);
+			return regex.test(f.className);
+		});
 
 		if (formFieldsWithSameClassName.length)
 			formField.className = `${formField.className}-${
