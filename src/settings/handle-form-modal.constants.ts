@@ -35,6 +35,7 @@ export const handleFormField = (): FormField[] => [
 		name: "Class name",
 		description: { value: "Field identifier" },
 		className: "field-class-name",
+		disable: true,
 		content: {
 			value: undefined,
 			expressionParams: {

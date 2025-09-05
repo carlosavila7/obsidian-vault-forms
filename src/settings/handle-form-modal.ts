@@ -4,6 +4,7 @@ import { DropdownFormField } from "src/form-field/dropdown-form-field.factory";
 import { FormField } from "src/form-field/form-field.constants";
 import { fromFormDataToFormField, isInputExpressionSyntaxValid } from "utils";
 import { ConfirmationModal } from "./confirmation-modal";
+import { UpdateClassNameModal } from "./update-class-name-modal";
 import { handleFormField } from "./handle-form-modal.constants";
 import { RangeFormField } from "src/form-field/range-form-field.factory";
 
@@ -292,6 +293,23 @@ export class HandleFormModal extends Modal {
 
 			setting.addExtraButton((btn) =>
 				btn
+					.setIcon("fingerprint")
+					.setTooltip("Edit class name")
+					.onClick(() => {
+						new UpdateClassNameModal(
+							this.app,
+							formField.className,
+							this.form.formFields.map((f) => f.className),
+							(newClassName) => {
+								formField.className = newClassName;
+								this.refreshFieldsSection();
+							}
+						).open();
+					})
+			);
+
+			setting.addExtraButton((btn) =>
+				btn
 					.setIcon("pencil")
 					.setTooltip("Edit field")
 					.onClick(() =>
@@ -358,7 +376,6 @@ export class HandleFormModal extends Modal {
 					break;
 				case "field-class-name":
 					valueToAssign = formField.className;
-					field.disable = true;
 					break;
 				case "field-description":
 					valueToAssign =
