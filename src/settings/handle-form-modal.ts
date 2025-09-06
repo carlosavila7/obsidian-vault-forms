@@ -7,6 +7,7 @@ import { ConfirmationModal } from "./confirmation-modal";
 import { UpdateClassNameModal } from "./update-class-name-modal";
 import { handleFormField } from "./handle-form-modal.constants";
 import { RangeFormField } from "src/form-field/range-form-field.factory";
+import { ExpressionEvaluator } from "src/utils/expression-evaluator";
 
 interface HandleFormModalParams {
 	app: App;
@@ -202,10 +203,13 @@ export class HandleFormModal extends Modal {
 			return;
 		}
 
-		if (this.form.outputName) {
-			const isSyntaxValid = isInputExpressionSyntaxValid(
-				this.form.outputName
-			);
+		const [_, outputNameExpression, __] = this.form.outputName
+			? ExpressionEvaluator.splitExpression(this.form.outputName)
+			: ["", "", "" ];
+
+		if (outputNameExpression) {
+			const isSyntaxValid =
+				isInputExpressionSyntaxValid(outputNameExpression);
 
 			if (!isSyntaxValid) {
 				new Notice("Syntax error on output name field");

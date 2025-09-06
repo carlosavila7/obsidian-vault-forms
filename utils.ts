@@ -21,24 +21,26 @@ export function fromFormDataToFormField(formData: IFieldData[]): FormField {
 		expressionParams: { expression },
 	});
 
-	   const formField: FormField = {
-		   type: formDataMap.get("field-type")?.fieldValue,
-		   name: formDataMap.get("field-name")?.fieldValue,
-		   className: formDataMap.get("field-class-name")?.fieldValue,
-		   description: buildExpressionProperty(
-			   formDataMap.get("field-description")?.fieldValue
-		   ),
-		   placeholder: buildExpressionProperty(
-			   formDataMap.get("field-placeholder")?.fieldValue
-		   ),
-		   hideExpression: buildExpressionProperty(
-			   formDataMap.get("field-hide-expression")?.fieldValue
-		   ),
-		   content: buildExpressionProperty(
-			   formDataMap.get("field-default-value")?.fieldValue
-		   ),
-		   required: formDataMap.get("field-required").fieldValue === "true",
-		   writeToOutputNote: formDataMap.get("field-write-to-output-note")?.fieldValue === "true",
+	const formField: FormField = {
+		type: formDataMap.get("field-type")?.fieldValue,
+		name: formDataMap.get("field-name")?.fieldValue,
+		className: formDataMap.get("field-class-name")?.fieldValue,
+		description: buildExpressionProperty(
+			formDataMap.get("field-description")?.fieldValue
+		),
+		placeholder: buildExpressionProperty(
+			formDataMap.get("field-placeholder")?.fieldValue
+		),
+		hideExpression: buildExpressionProperty(
+			formDataMap.get("field-hide-expression")?.fieldValue
+		),
+		content: buildExpressionProperty(
+			formDataMap.get("field-default-value")?.fieldValue
+		),
+		required: formDataMap.get("field-required").fieldValue === "true",
+		writeToOutputNote:
+			formDataMap.get("field-write-to-output-note")?.fieldValue ===
+			"true",
 	};
 
 	if (formField.type === FORM_FIELD_ELEMENT_TYPE.DROPDOWN)
@@ -112,11 +114,11 @@ export function fromArrayToRecord(array?: string[]): Record<string, string> {
 	return record;
 }
 
-	export function isInputExpressionSyntaxValid(inputExpression: string): boolean {
-		try {
-			new Function(inputExpression);
-			return true;
-		} catch (_) {
-			return false;
-		}
+export function isInputExpressionSyntaxValid(inputExpression: string): boolean {
+	try {
+		new Function(inputExpression);
+		return true;
+	} catch (_) {
+		return false;
 	}
+}
