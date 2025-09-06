@@ -1,6 +1,6 @@
 {
 	"name": "vault-forms",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"description": "Define forms to input data on notes structured as frontmatter.",
 	"main": "main.js",
 	"scripts": {
