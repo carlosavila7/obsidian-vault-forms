@@ -76,7 +76,7 @@ export class HandleFormModal extends Modal {
 		new Setting(contentEl)
 			.setName("Output name *")
 			.setDesc("Optional - Output note name setting")
-			.addText((txt) =>
+			.addTextArea((txt) =>
 				txt
 					.setValue(this.form.outputName ?? "")
 					.onChange((value) => (this.form["outputName"] = value))
