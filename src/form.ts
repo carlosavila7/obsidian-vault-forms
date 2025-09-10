@@ -43,8 +43,9 @@ export interface IForm {
 	outputName?: string;
 	onSubmit?: (data: any) => void;
 	submitLabel?: string;
-		showRibbonIcon?: boolean;
-		ribbonIconName?: string;}
+	showRibbonIcon?: boolean;
+	ribbonIconName?: string;
+}
 
 export class Form extends Modal {
 	contentEl: HTMLElement;
@@ -323,7 +324,10 @@ export class Form extends Modal {
 		let fileName = "";
 
 		if (this.outputName) {
-			const expressionEvaluator = new ExpressionEvaluator(this.app);
+			const expressionEvaluator = new ExpressionEvaluator(
+				this.app,
+				"output name"
+			);
 			const expressionContext = this.outputName.includes("$$.")
 				? this.getExpressionContext(this.outputName)
 				: undefined;

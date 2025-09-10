@@ -60,7 +60,7 @@ export abstract class FormFieldFactory {
 		this.baseRequiredValue = this.formField.required;
 		this.hideExpressionContext = params?.hideExpressionContext;
 
-		this.expressionEvaluator = new ExpressionEvaluator(this.app);
+		this.expressionEvaluator = new ExpressionEvaluator(this.app, this.formField.className);
 
 		this.formField.state = FORM_FIELD_STATE.CREATED;
 	}

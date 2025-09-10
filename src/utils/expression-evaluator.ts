@@ -7,8 +7,10 @@ import { getClassNamesFromExpression, getFilePathsFromExpression } from "utils";
 
 export class ExpressionEvaluator {
 	app: App;
-	constructor(app: App) {
+	className: string;
+	constructor(app: App, className: string) {
 		this.app = app;
+		this.className = className;
 	}
 
 	async evaluateExpression<T>(
@@ -42,9 +44,9 @@ export class ExpressionEvaluator {
 				? `${prefix}${expressionResult}${suffix ?? ""}`
 				: expressionResult;
 		} catch (error) {
-			new Notice(`Error on evaluating ${params.expression} expression`);
-			console.error(expressionToEvaluate);
+			new Notice(`Error on evaluating ${this.className} expression`);
 			console.error(error);
+			console.error("Expression:", expressionToEvaluate);
 
 			return `${prefix}${suffix ?? ""}`;
 		}
