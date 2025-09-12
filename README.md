@@ -1,63 +1,30 @@
-# Todo
+# Vault Forms
 
-- [X] Structure form class
-    - form name
-    - get form result
-- [X] Build interface to configure forms
-    - [X] Create form
-    - [X] List created forms
-        - Add togle to activate forms according to the toogle state
-    - [X] Delete form
-    - [X] Update form
-        - Try to use the same modal class to create form. In this case, the form is rendered filled with the info from the form that is being updated.
-- [X] Change required setting on form creation to be a toggle form field
-- [X] Move settings code currently on `main.ts` to a separate file
+Vault Forms is a plugin for [Obsidian](https://obsidian.md/) that allows users to create customizable forms for editing frontmatter metadata in their notes. The plugin provides a interface for managing forms and its properties, making it easier to structure data in a systematic way.
 
-### refactoring
+## Features
+- **Customizable Forms:** Build forms to structure data stored in frontmatter fields of notes.
+- **Field Types:** Supports a variety of field types for different data formats and use cases.
+- **Expression Evaluation:** Dynamically compute field values using expressions and context from other fields or files.
+- **File and Folder Integration:** Reference and pull data from other files or folders in your vault.
 
-- [X] Rethink class implementation to optimize overwritten methods
-    - methods that are overwritten on children classes must be abstract on the base class
-    - when making methods abstract to be implemented by children, keep the common logic on the base class
+## Supported Field Types
+The plugin supports the following field types:
+- **Text**: Single-line text input.
+- **Textarea**: Multi-line text input.
+- **Number**: Numeric input.
+- **Dropdown**: Select from a list of options.
+- **Range**: Numeric slider input.
+- **Date**: Date picker.
+- **Time**: Time picker.
+- **Toggle**: Boolean switch.
 
-### features
- - [X] Togle field  
-    - [X] When implement this on the form field modal, add expression to set as not required if it has hide expression
- - [X] Slider field
- - [X] Textarea field
- - [X] Test expresson while creating/updating a form field
- - [X] While reading a path, if the the path resolves to a folder, the output must be an array of the file names inside of it. Currently it does not work if the path is not referencing a note
-    - this could be use to create links between notes. Relational data
- - [X] Enable the user to customize the naming of a resultant note on the submit of the form
-    - allow to reference fields to compose the name.
- - [ ] Review the special characters to reference fields on expressions
-    - allow it to be changed on the settings page
+## Getting Started
 
-### bugs
-- [X] Update one field updates all fields 
-- [X] When deleting the content of a field that has expression, it triggers the expression to run, filling the field again.
-    - Makes impossible to have the field as blank
-- [X] Hide expression not working on dropdown fields
-    - Try to point to a text field instead of another dropdown to hide the field
-- [X] Converting circular structure
-    ```
-    Uncaught TypeError: Converting circular structure to JSON
-        --> starting at object with constructor 'e'
-        |     property 'appMenuBarManager' -> object with constructor 'e'
-        --- property 'app' closes the circle
-        at JSON.stringify (<anonymous>)
-        at HandleFormModal.getUpdateForm (VM227 plugin:sample-plugin:1473:12)
-        at HandleFormModal.handleFormFieldUpdate (VM227 plugin:sample-plugin:1378:26)
-        at eval (VM227 plugin:sample-plugin:1434:54)
-        at HTMLDivElement.<anonymous> (app.js:1:1349337)
-    getUpdateForm @ VM227 plugin:sample-plugin:1473
-    handleFormFieldUpdate @ VM227 plugin:sample-plugin:1378
-    eval @ VM227 plugin:sample-plugin:1434
-    (anonymous) @ app.js:1
-    ```
+See the following documentation files for practical usage:
 
-### feedbacks
-- [X] Handle date better in data formField date
-    - Handle Date, number, strings
-    - Parse input to string 'YYYY-MM-DD'
-- [X] Handle time better in data formField time
-- [ ] Enable expression on all fields (if not doable, make it happen on placeholder)
+- 1. Installation — Install it from the Obsidian community plugin list.
+- 2. [Field Configuration](#) — Details on configuring each field type and their options.
+- 3. [Form Configuration](#) — Step-by-step instructions for creating and configuring forms.
+- 4. [Expressions](#) — How to use dynamic expressions to reference other fields, files, and folders.
+- 5. [Use Cases & Examples](#) — Sample form configurations and advanced scenarios.
