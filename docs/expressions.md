@@ -84,4 +84,4 @@ This will concatenate the value of `projectName` with the list of files in the `
 - Invalid references or missing files/folders will trigger a notice in Obsidian.
 
 ---
-For more details, see the main [README.md](./readme.md) or explore the source code for `ExpressionEvaluator` in `src/utils/expression-evaluator.ts`.
+For more details, see the main [README.md](../README.md) or explore the source code for `ExpressionEvaluator` in `src/utils/expression-evaluator.ts`.
