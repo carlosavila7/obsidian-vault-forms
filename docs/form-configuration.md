@@ -16,4 +16,8 @@ On Vault Forms settings tab you can access the form configuration modal going to
 
 ## Fields
 
+The "Fields" section displays a list of all fields included in the form. Each field shows its name, type, and identifier (class name). Users can reorder fields, edit their configuration, edit their class name or delete them using the provided controls. The section also includes buttons to add new fields or finalize the form creation.
+
 ![Fields section](./assets/Screenshot%202025-09-13%20at%2017.55.16.png)
+
+The button `Add new field` opens the [field configuration](field-configuration.md) modal to configure and create new fields. There must be at least one field configured to create a form.
