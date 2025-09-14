@@ -27,7 +27,9 @@ The plugin supports the following field types:
 See the following documentation files for practical usage:
 
 1. Installation — Install it from the Obsidian community plugin list.
-2. [Field Configuration](docs/field-configuration.md) — Details on configuring each field type and their options.
-3. [Form Configuration](#) — Step-by-step instructions for creating and configuring forms.
-4. [Expressions](#) — How to use dynamic expressions to reference other fields, files, and folders.
-5. [Use Cases & Examples](#) — Sample form configurations and advanced scenarios.
+2. [Form Configuration](docs/form-configuration.md) — Step-by-step instructions for creating and configuring forms.
+3. [Field Configuration](docs/field-configuration.md) — Details on configuring each field type and their options.
+4. [Expressions](docs/expressions.md) — How to use dynamic expressions to reference other fields, files, and folders.
+5. [Use Cases & Examples](docs/usecases.md) — Sample form configurations and advanced scenarios.
+
+Check out the [example vault](https://github.com/carlosavila7/vault-forms-example/tree/main) for this plugin. It has some examples and use cases.

@@ -88,3 +88,7 @@ The range field has some additional properties to define its behavior.
 | Step | Steps in which the slider will vary. | Any numeric value greater than zero. | `required` |
 
 ![Range field example](./assets/Screenshot%202025-09-13%20at%2014.54.50.png)
+
+---
+
+To deepen your understanding of how fields can be dynamically configured and automated, continue by reading the [expressions](expressions.md) guide and exploring practical [use cases](usecases.md). These references will help you unlock advanced features and see real-world examples of Vault Forms in action.

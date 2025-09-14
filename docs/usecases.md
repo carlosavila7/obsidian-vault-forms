@@ -2,93 +2,67 @@
 
 This document provides practical examples and use cases to help you structure forms and leverage the full capabilities of the Obsidian Frontmatter Form plugin.
 
-## 1. Basic Metadata Form
-A simple form to edit note metadata such as title, status, and tags.
+## 1. Dropdown options from file
 
-```json
-{
-  "fields": [
-    { "type": "text", "className": "title", "label": "Title" },
-    { "type": "dropdown", "className": "status", "label": "Status", "options": ["Draft", "In Progress", "Complete"] },
-    { "type": "textarea", "className": "tags", "label": "Tags" }
-  ]
-}
+Referencing a file property to use as dropdown options:
+
+Expression:
+
+```js
+{{ %%dictionary%%["property-array"] }}
 ```
 
-## 2. Dynamic Field Values with Expressions
-Automatically set a field value based on other fields.
+`dictionary.md` file frontmatter:
 
-```json
-{
-  "fields": [
-    { "type": "text", "className": "projectName", "label": "Project Name" },
-    { "type": "date", "className": "startDate", "label": "Start Date" },
-    {
-      "type": "text",
-      "className": "summary",
-      "label": "Summary",
-      "expression": "{{ $$.projectName + ' started on ' + $$.startDate }}"
-    }
-  ]
-}
+```yml
+property: value
+property-array:
+  - item A
+  - item B
+  - item C
 ```
 
-## 3. Referencing File Content
-Pull frontmatter from another file in your vault.
+![Dropdown options from file use case](assets/Screenshot%202025-09-14%20at%2014.57.19.png)
 
-```json
-{
-  "fields": [
-    { "type": "text", "className": "relatedNote", "label": "Related Note" },
-    {
-      "type": "textarea",
-      "className": "noteFrontmatter",
-      "label": "Note Frontmatter",
-      "expression": "{{ %%Notes/{{$$.relatedNote}}%% }}"
-    }
-  ]
-}
+## 2. Dropdown options from folder
+
+Referencing a folder to use as dropdown options:
+
+Expression:
+
+```js
+{{ %%Files/%% }}
 ```
 
-## 4. Folder Listing for Dropdown Options
-Populate a dropdown with file names from a folder.
+Folder structure:
 
-```json
-{
-  "fields": [
-    {
-      "type": "dropdown",
-      "className": "projectFile",
-      "label": "Select Project File",
-      "options": "{{ %%Projects/%% }}"
-    }
-  ]
-}
+```txt
+Files/
+├── File 1.md
+├── File 2.md
+└── File 3.md
 ```
 
-## 5. Advanced: Combining Multiple Features
-A form that uses toggles, ranges, and combines expressions for a summary field.
+![Dropdown options from folder use case](assets/Screenshot%202025-09-14%20at%2015.04.58.png)
 
-```json
-{
-  "fields": [
-    { "type": "toggle", "className": "isActive", "label": "Active?" },
-    { "type": "range", "className": "progress", "label": "Progress", "min": 0, "max": 100 },
-    {
-      "type": "text",
-      "className": "statusSummary",
-      "label": "Status Summary",
-      "expression": "{{ ($$.isActive ? 'Active' : 'Inactive') + ' - ' + $$.progress + '% complete' }}"
-    }
-  ]
-}
+## 3. Set current datetime on date and time fields
+
+The value property of both date and time type fields handles JS Date in addition to strings formats like `YYYY-MM-DD`, or `HH:mm` in case of time fields. So to set them to the current date/time is very simple:
+
+Expression:
+
+```js
+{{ new Date() }}
 ```
+
+![Current date time use case](assets/Screenshot%202025-09-14%20at%2015.21.01.png)
 
 ## Tips for Structuring Forms
+
 - Use meaningful `className` values for easy reference in expressions.
 - Leverage expressions to automate and link field values.
 - Reference files and folders to integrate vault data dynamically.
 - Combine multiple field types for rich metadata editing.
 
 ---
-For more details on expressions, see [expressions.md](./expressions.md). For plugin overview, see [readme.md](./readme.md).
+For more details on expressions, see [expressions.md](./expressions.md). For plugin overview, see [readme.md](./readme.md). Use case listed here can be found on the [example vault](https://github.com/carlosavila7/vault-forms-example/tree/main) for this plugin.
